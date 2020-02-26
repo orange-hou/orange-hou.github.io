@@ -1,45 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://orange-hou.github.io/</id>
-    <title>Gridea</title>
-    <updated>2020-02-26T11:24:58.507Z</updated>
+    <title>侯橙橙的博客</title>
+    <updated>2020-02-26T13:21:58.820Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://orange-hou.github.io/"/>
     <link rel="self" href="https://orange-hou.github.io/atom.xml"/>
-    <subtitle>温故而知新</subtitle>
+    <subtitle>如水般清澈，如酒般清冽，如茶般清雅</subtitle>
     <logo>https://orange-hou.github.io/images/avatar.png</logo>
     <icon>https://orange-hou.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, Gridea</rights>
+    <rights>All rights reserved 2020, 侯橙橙的博客</rights>
     <entry>
-        <title type="html"><![CDATA[Hello Gridea]]></title>
-        <id>https://orange-hou.github.io/post/hello-gridea/</id>
-        <link href="https://orange-hou.github.io/post/hello-gridea/">
+        <title type="html"><![CDATA[FSP平台集成向量检索框架方案]]></title>
+        <id>https://orange-hou.github.io/post/fsp-ping-tai-ji-cheng-xiang-liang-jian-suo-kuang-jia-fang-an/</id>
+        <link href="https://orange-hou.github.io/post/fsp-ping-tai-ji-cheng-xiang-liang-jian-suo-kuang-jia-fang-an/">
         </link>
-        <updated>2018-12-11T16:00:00.000Z</updated>
-        <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-<!-- more -->
-<p><a href="https://github.com/getgridea/gridea">Github</a><br>
-<a href="https://gridea.dev/">Gridea 主页</a><br>
-<a href="http://fehey.com/">示例网站</a></p>
-<h2 id="特性">特性👇</h2>
-<p>📝  你可以使用最酷的 <strong>Markdown</strong> 语法，进行快速创作</p>
-<p>🌉  你可以给文章配上精美的封面图和在文章任意位置插入图片</p>
-<p>🏷️  你可以对文章进行标签分组</p>
-<p>📋  你可以自定义菜单，甚至可以创建外部链接菜单</p>
-<p>💻  你可以在 <strong>Windows</strong>，<strong>MacOS</strong> 或 <strong>Linux</strong> 设备上使用此客户端</p>
-<p>🌎  你可以使用 <strong>𝖦𝗂𝗍𝗁𝗎𝖻 𝖯𝖺𝗀𝖾𝗌</strong> 或 <strong>Coding Pages</strong> 向世界展示，未来将支持更多平台</p>
-<p>💬  你可以进行简单的配置，接入 <a href="https://github.com/gitalk/gitalk">Gitalk</a> 或 <a href="https://github.com/SukkaW/DisqusJS">DisqusJS</a> 评论系统</p>
-<p>🇬🇧  你可以使用<strong>中文简体</strong>或<strong>英语</strong></p>
-<p>🌁  你可以任意使用应用内默认主题或任意第三方主题，强大的主题自定义能力</p>
-<p>🖥  你可以自定义源文件夹，利用 OneDrive、百度网盘、iCloud、Dropbox 等进行多设备同步</p>
-<p>🌱 当然 <strong>Gridea</strong> 还很年轻，有很多不足，但请相信，它会不停向前 🏃</p>
-<p>未来，它一定会成为你离不开的伙伴</p>
-<p>尽情发挥你的才华吧！</p>
-<p>😘 Enjoy~</p>
+        <updated>2020-02-26T13:07:48.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="一-常用向量检索框架对比">一、常用向量检索框架对比</h2>
+<h3 id="1faiss">1.Faiss</h3>
+<p>1.1支持丰富的索引类型，性能优异，较为成熟</p>
+<p>1.2需要依赖多个第三方计算库</p>
+<p>1.3编程语言不支持Java</p>
+<h3 id="2milvus">2.Milvus</h3>
+<p>2.1多平台通用，可通过docker快速部署</p>
+<p>2.2支持多种编程语言，包括Java，C，C++和Python</p>
+<p>2.3milvus的向量格式不支持numpy，要用列表的形式存储向量，比较耗内存</p>
+<p>2.4milvus在第一次search时速度较慢，需要进行预热</p>
+<h2 id="二-平台集成faiss">二、平台集成Faiss</h2>
+<h3 id="21-faiss4j模块">2.1 faiss4J模块</h3>
+<p>1.Faiss采用C++开发，平台如需通过java直接使用，必须通过JNI开发一个可供Java直接调用的项目</p>
+<p>2.仿照亚云的项目，开发Faiss4J项目，涉及java JNI开发及C++开发，需熟知Faiss的相关C++接口</p>
+<h3 id="22-faiss环境配置">2.2 faiss环境配置</h3>
+<p>1.方案a:安装OpenBlas、BLAS&amp;Lapack、libgfortran4、Faiss</p>
+<p>2.方案b:将Faiss的主要动态链接库（openblas.so/lapack.so/blas.so等）配置到一中libfaiss4j.so需要加载依赖资源库的位置</p>
+<h3 id="23search-faiss模块">2.3search-faiss模块</h3>
+<p>1.引入faiss4J依赖，确定业务具体需求及索引类型，索引类型局限于Faiss支持的几种（L2/PQ等），可参考https://github.com/facebookresearch/faiss/wiki/Faiss-indexes</p>
+<p>2.采用Thrift进行服务化，开发索引更新及搜索接口，底层调用faiss4J接口</p>
+<p>3.修改dispatcher模块，支持search-faiss的读写路由</p>
+<p>4.修改atom模块，支持search-faiss实例的同步及配置</p>
+<p>5.支持按集群方式部署，同集群下索引同步可参考Solr的主从模式</p>
+<h2 id="三-平台集成milvus">三、平台集成Milvus</h2>
+<h3 id="31milvus安装">3.1milvus安装</h3>
+<p>1.方案a:采用docker安装部署</p>
+<p>2.方案b:基于源码编译安装</p>
+<h3 id="31-search-milvus模块">3.1 search-milvus模块</h3>
+<p>1.确定业务具体需求及索引类型，索引类型可参考https://www.milvus.io/docs/v0.6.0/guides/milvus_operation.md</p>
+<p>2.采用Thrift进行服务化，开发索引更新及搜索接口</p>
+<p>3.修改dispatcher模块，支持search-milvus的读写路由</p>
+<p>4.修改atom模块，支持search-milvus实例的同步及配置</p>
+<p>5.支持按集群方式部署，同集群下索引同步可参考Solr的主从模式</p>
+<h2 id="四-总结">四、总结</h2>
+<ol>
+<li>无论集成Faiss还是Milvus，都必须安装相关环境</li>
+<li>倾向于Milvus，相比Faiss更为简单</li>
+<li>更多具体开发细节待明确（如Index的维护等等）</li>
+</ol>
 ]]></content>
     </entry>
 </feed>
