@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://orange-hou.github.io/</id>
     <title>侯橙橙的博客</title>
-    <updated>2020-02-27T13:51:16.123Z</updated>
+    <updated>2020-03-14T11:25:23.347Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://orange-hou.github.io/"/>
     <link rel="self" href="https://orange-hou.github.io/atom.xml"/>
@@ -10,51 +10,4 @@
     <logo>https://orange-hou.github.io/images/avatar.png</logo>
     <icon>https://orange-hou.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 侯橙橙的博客</rights>
-    <entry>
-        <title type="html"><![CDATA[FSP平台集成向量检索框架方案]]></title>
-        <id>https://orange-hou.github.io/post/fsp-ping-tai-ji-cheng-xiang-liang-jian-suo-kuang-jia-fang-an/</id>
-        <link href="https://orange-hou.github.io/post/fsp-ping-tai-ji-cheng-xiang-liang-jian-suo-kuang-jia-fang-an/">
-        </link>
-        <updated>2020-02-26T13:07:48.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="一-常用向量检索框架对比">一、常用向量检索框架对比</h2>
-<h3 id="1faiss">1.Faiss</h3>
-<p>1.1支持丰富的索引类型，性能优异，较为成熟</p>
-<p>1.2需要依赖多个第三方计算库</p>
-<p>1.3编程语言不支持Java</p>
-<h3 id="2milvus">2.Milvus</h3>
-<p>2.1多平台通用，可通过docker快速部署</p>
-<p>2.2支持多种编程语言，包括Java，C，C++和Python</p>
-<p>2.3milvus的向量格式不支持numpy，要用列表的形式存储向量，比较耗内存</p>
-<p>2.4milvus在第一次search时速度较慢，需要进行预热</p>
-<h2 id="二-平台集成faiss">二、平台集成Faiss</h2>
-<h3 id="21-faiss4j模块">2.1 faiss4J模块</h3>
-<p>1.Faiss采用C++开发，平台如需通过java直接使用，必须通过JNI开发一个可供Java直接调用的项目</p>
-<p>2.仿照亚云的项目，开发Faiss4J项目，涉及java JNI开发及C++开发，需熟知Faiss的相关C++接口</p>
-<h3 id="22-faiss环境配置">2.2 faiss环境配置</h3>
-<p>1.方案a:安装OpenBlas、BLAS&amp;Lapack、libgfortran4、Faiss</p>
-<p>2.方案b:将Faiss的主要动态链接库（openblas.so/lapack.so/blas.so等）配置到一中libfaiss4j.so需要加载依赖资源库的位置</p>
-<h3 id="23search-faiss模块">2.3search-faiss模块</h3>
-<p>1.引入faiss4J依赖，确定业务具体需求及索引类型，索引类型局限于Faiss支持的几种（L2/PQ等），可参考https://github.com/facebookresearch/faiss/wiki/Faiss-indexes</p>
-<p>2.采用Thrift进行服务化，开发索引更新及搜索接口，底层调用faiss4J接口</p>
-<p>3.修改dispatcher模块，支持search-faiss的读写路由</p>
-<p>4.修改atom模块，支持search-faiss实例的同步及配置</p>
-<p>5.支持按集群方式部署，同集群下索引同步可参考Solr的主从模式</p>
-<h2 id="三-平台集成milvus">三、平台集成Milvus</h2>
-<h3 id="31milvus安装">3.1milvus安装</h3>
-<p>1.方案a:采用docker安装部署</p>
-<p>2.方案b:基于源码编译安装</p>
-<h3 id="31-search-milvus模块">3.1 search-milvus模块</h3>
-<p>1.确定业务具体需求及索引类型，索引类型可参考https://www.milvus.io/docs/v0.6.0/guides/milvus_operation.md</p>
-<p>2.采用Thrift进行服务化，开发索引更新及搜索接口</p>
-<p>3.修改dispatcher模块，支持search-milvus的读写路由</p>
-<p>4.修改atom模块，支持search-milvus实例的同步及配置</p>
-<p>5.支持按集群方式部署，同集群下索引同步可参考Solr的主从模式</p>
-<h2 id="四-总结">四、总结</h2>
-<ol>
-<li>无论集成Faiss还是Milvus，都必须安装相关环境</li>
-<li>倾向于Milvus，相比Faiss更为简单</li>
-<li>更多具体开发细节待明确（如Index的维护等等）</li>
-</ol>
-]]></content>
-    </entry>
 </feed>
