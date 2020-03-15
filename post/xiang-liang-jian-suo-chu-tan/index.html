@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="keywords" content="侯橙橙个人博客">
+<meta name="description" content="如水般清澈，如酒般清冽，如茶般清雅">
+<meta name="theme-color" content="#000">
+<title>向量检索初探 | 侯橙橙的博客</title>
+<link rel="shortcut icon" href="https://orange-hou.github.io//favicon.ico?v=1584285969930">
+<link rel="stylesheet" href="https://orange-hou.github.io//styles/main.css">
+
+<link rel="stylesheet" href="/media/css/mist.css">
+
+<link rel="stylesheet" href="/media/fonts/font-awesome.css">
+<link href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Rosario:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+<link href="/media/hljs/styles/androidstudio.css" rel="stylesheet">  
+
+<script src="/media/hljs/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.0/velocity.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.0/velocity.ui.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+
+    <meta name="description" content="向量检索初探" />
+    <meta name="keywords" content="向量检索" />
+  </head>
+  <body>
+    <div class="head-top-line"></div>
+    <div class="header-box">
+      
+<div class=" mist">
+  <header class="header bg-color ">
+    <div class="blog-header box-shadow-wrapper  " id="header">
+      <div class="nav-toggle" id="nav_toggle">
+        <div class="toggle-box">
+          <div class="line line-top"></div>
+          <div class="line line-center"></div>
+          <div class="line line-bottom"></div>
+        </div>
+      </div>
+      <div class="site-meta">       
+        <div class="site-title">
+          
+            <a href="/" class="">
+              <span class="logo-line-before">
+                <i class=""></i>
+              </span>
+              <span class="main-title">侯橙橙的博客</span>
+              <span class="logo-line-after">
+                <i class=""></i>
+              </span>
+            </a>  
+          
+        </div>
+        
+      </div>
+      <nav class="site-nav" id="site_nav">
+        <ul id="nav_ul">
+          
+            <li class="nav-item ">
+              
+                <a href="https://orange-hou.github.io/">
+                  <i class="fa fa-globe"></i> 首页
+                </a>
+              
+            </li>
+          
+            <li class="nav-item ">
+              
+                <a href="/archives">
+                  <i class="fa fa-archive"></i> 归档
+                </a>
+              
+            </li>
+          
+            <li class="nav-item ">
+              
+                <a href="/tags">
+                  <i class="fa fa-tags"></i> 标签
+                </a>
+              
+            </li>
+          
+            <li class="nav-item ">
+              
+                <a href="/post/about">
+                  <i class="fa fa-user"></i> 关于
+                </a>
+              
+            </li>
+          
+          <li class="nav-item">
+            <a>
+              <i class="fa fa-search"></i> 搜索
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+</div>
+
+<script type="text/javascript"> 
+ 
+  let showNav = true;
+
+  let navToggle = document.querySelector('#nav_toggle'),
+  siteNav = document.querySelector('#site_nav');
+  
+  function navClick() {
+    let sideBar = document.querySelector('.sidebar');
+    let navUl = document.querySelector('#nav_ul');
+    navToggle.classList.toggle('nav-toggle-active');
+    siteNav.classList.toggle('nav-menu-active');
+    if (siteNav.classList.contains('nav-menu-active')) {
+      siteNav.style = "height: " + (navUl.children.length * 42) +"px !important";
+    } else {
+      siteNav.style = "";
+    }
+  }
+
+  navToggle.addEventListener('click',navClick);  
+</script>
+    </div>
+    <div class="main-continer">
+      
+      <div class="section-layout mist bg-color">
+        <div class="section-layout-wrapper">
+          
+
+<div class="sidebar">
+    <div class="sidebar-box box-shadow-wrapper  right-motion" id="sidebar">
+      
+        <div class="post-list-sidebar">
+          <div class="sidebar-title">
+            <span id="tocSideBar" class="sidebar-title-item sidebar-title-active">文章目录</span>
+            <span id="metaSideBar" class="sidebar-title-item">站点概览</span>
+          </div>
+        </div>
+      
+      <div class="sidebar-body mist" id="sidebar_body">
+        
+          <div class="post-side-meta" id="post_side_meta">
+            
+<div class="sidebar-wrapper box-shadow-wrapper ">
+  <div class="sidebar-item">
+    <img class="site-author-image right-motion" src="https://orange-hou.github.io//images/avatar.png"/>
+    <p class="site-author-name">侯橙橙的博客</p>
+    <p class="site-description right-motion">一个爱手剥橙子的coder</p>
+  </div>
+  <div class="sidebar-item side-item-stat right-motion">
+    <div class="sidebar-item-box">
+      <a href="/archives/">
+        
+        <span class="site-item-stat-count">1</span>
+        <span class="site-item-stat-name">文章</span>
+      </a>
+    </div>
+    <div class="sidebar-item-box">
+      <a href="">
+        <span class="site-item-stat-count">1</span>
+        <span class="site-item-stat-name">分类</span>
+      </a>
+    </div>
+    <div class="sidebar-item-box">
+      <a href="/tags/">
+        <span class="site-item-stat-count">1</span>
+        <span class="site-item-stat-name">标签</span>
+      </a>
+    </div>
+  </div>
+  
+  
+
+
+</div>
+          </div>
+          <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+            <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto" id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E4%B8%80-%E4%BD%95%E4%B8%BA%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2">一、何为向量检索？</a></li>
+<li><a href="#%E4%BA%8C-%E5%90%91%E9%87%8F%E8%81%9A%E7%B1%BB">二、向量聚类</a></li>
+<li><a href="#%E4%B8%89-faiss">三、Faiss</a>
+<ul>
+<li><a href="#whats-faiss">What's Faiss?</a></li>
+<li><a href="#faiss%E7%89%B9%E6%80%A7">Faiss特性</a></li>
+<li><a href="#faiss%E7%B4%A2%E5%BC%95%E7%B1%BB%E5%9E%8B">Faiss索引类型</a></li>
+</ul>
+</li>
+<li><a href="#%E5%9B%9B-milvus">四、Milvus</a>
+<ul>
+<li><a href="#whats-milvus">What's Milvus?</a></li>
+<li><a href="#milvus%E7%89%B9%E6%80%A7">Milvus特性</a></li>
+<li><a href="#mivus%E7%B4%A2%E5%BC%95%E7%B1%BB%E5%9E%8B">Mivus索引类型</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BA%94-sptag">五、SPTAG</a>
+<ul>
+<li><a href="#whats-sptag">What's SPTAG?</a></li>
+</ul>
+</li>
+<li><a href="#%E5%85%AD-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AF%B9%E6%AF%94">六、简单的对比</a></li>
+<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1; 
+let active = 'active-show', activeClass = 'active-current';
+let tocWrapper = document.querySelector('#toc_wrapper');
+let tocContent = tocWrapper.children[0];
+let autoNumber = tocWrapper&&tocWrapper.classList.contains('auto-number');
+
+function addTocNumber(elem, deep) {
+  if (!elem) {
+    return;
+  }
+  let prop = elem.__proto__;
+
+  if (prop === HTMLUListElement.prototype) {
+    for (let i = 0; i < elem.children.length; i++) {
+      addTocNumber(elem.children[i], deep + (i + 1) + '.');
+    }
+  } else if (prop === HTMLLIElement.prototype) {
+    // 保存li元素
+    lList.push(elem);
+    for (let i = 0; i < elem.children.length; i++) {
+      let cur = elem.children[i];
+      if (cur.__proto__ === HTMLAnchorElement.prototype) {
+        if (autoNumber) {
+          cur.text =  deep + ' ' + cur.text;
+        }
+      } else if (cur.__proto__ === HTMLUListElement.prototype) {
+        addTocNumber(cur, deep);
+      }
+    }
+  }
+}
+
+
+document.addEventListener('scroll', function(e) {
+  if (lList.length <= 0) {
+    return;
+  }
+  let scrollTop = document.scrollingElement.scrollTop;
+  let dir;
+
+  if (lastTop - scrollTop > 0) {
+    dir = 'up';
+  } else {
+    dir = 'down';
+  }
+
+  lastTop = scrollTop;
+  if (scrollTop <= 0) {
+    if (lastIndex >= 0 && lastIndex < hList.length) {
+      lList[lastIndex].classList.remove(activeClass);
+    }
+    return;
+  }
+
+  let current = 0, hasFind = false;
+  for (let i = 0; i < hList.length; i++) {
+    if (hList[i].offsetTop > scrollTop) {
+      current = i;
+      hasFind = true;
+      break;
+    }
+  }
+  if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+    current = hList.length - 1;
+  } else {
+    current--;
+  }
+  if (dir === 'down') {
+    if (current > lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex) 
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  } else {
+    if (current < lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex);
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  }
+});
+
+function removeParentActiveClass() {
+  let parents = tocContent.querySelectorAll('.'+active)
+  parents.forEach(function(elem) {
+    elem.classList.remove(active);
+  });
+}
+
+function addActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.add(activeClass);
+  }
+}
+
+function removeActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.remove(activeClass);
+  }
+}
+
+function addActiveLiElemment(elem, parent) {
+  if (!elem || elem === parent) {
+    return;
+  } else {
+    if (elem.__proto__ === HTMLLIElement.prototype) {
+      elem.classList.add(active);
+    }
+    addActiveLiElemment(elem.parentElement, parent);
+  }
+}
+
+function showToc() {
+  if (tocWrapper) {
+    postBody = document.querySelector('#post_body');
+    for (let i = 0; i < postBody.children.length; i++) {
+      if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+        hList.push(postBody.children[i]);
+      }
+    }
+    if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+    } else if (tocWrapper.classList.contains('no_compress')){
+      tocContent.classList.add('expanded');
+    } else {
+      if (hList.length > 10) {
+        active = 'active-hidden'
+        tocContent.classList.add('closed');
+      } else {
+        tocContent.classList.add('expanded');
+      }
+    }
+  }
+}
+addTocNumber(tocContent, '');
+
+window.addEventListener('load', function() {
+  showToc();
+  document.querySelector('#sidebar').style='display: block;';
+  tocWrapper.classList.add('toc-active');
+  setTimeout(function() {
+    if ("createEvent" in document) {
+      let evt = document.createEvent("HTMLEvents");
+      evt.initEvent("scroll", false, true);
+      document.dispatchEvent(evt);
+    }
+    else {
+      document.fireEvent("scroll");
+    }
+  }, 500)
+})
+
+</script>
+          </div>
+        
+      </div>
+    </div>
+</div>
+<script>
+  const SIDEBAR_TITLE_ACTIVE = 'sidebar-title-active';
+  const SIDEBAR_BODY_ACTIVE = 'sidebar-body-active';
+  const SLIDE_UP_IN = 'slide-up-in';
+
+  let sidebar = document.querySelector('#sidebar'),
+  tocSideBar = document.querySelector('#tocSideBar'),
+  metaSideBar = document.querySelector('#metaSideBar'),
+  postToc = document.querySelector('#post_toc'),
+  postSiteMeta = document.querySelector('#post_side_meta'),
+  sidebarTitle = document.querySelector('.sidebar-title'),
+  sidebarBody = document.querySelector('#sidebar_body');
+
+  tocSideBar && tocSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  metaSideBar && metaSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  function toggleSidebar(e) {
+    let currentTitle = document.querySelector("."+SIDEBAR_TITLE_ACTIVE);
+    if (currentTitle == e.srcElement) {
+      return ;
+    }
+    let current, showElement, hideElement;
+    if (e.srcElement == metaSideBar) {
+      showElement = postSiteMeta;
+      hideElement = postToc;
+    } else if (e.srcElement == tocSideBar){
+      showElement = postToc;
+      hideElement = postSiteMeta;
+    }
+    currentTitle.classList.remove(SIDEBAR_TITLE_ACTIVE);
+    e.srcElement.classList.add(SIDEBAR_TITLE_ACTIVE);
+
+    window.Velocity(hideElement, 'stop');
+    window.Velocity(hideElement, 'transition.slideUpOut', {
+      display: 'none',
+      duration: 200,
+      complete: function () {
+        window.Velocity(showElement, 'transition.slideDownIn', {
+          duration: 200
+        });
+      }
+    })
+    hideElement.classList.remove(SIDEBAR_BODY_ACTIVE);
+    showElement.classList.add(SIDEBAR_BODY_ACTIVE);
+  }
+
+  postToc.addEventListener('transitionend', function() {
+    this.classList.remove(SLIDE_UP_IN);
+  });
+
+
+  if (sidebarBody.classList.contains('pisces') || sidebarBody.classList.contains('gemini')) {
+    let hasFix = false;
+    let scrollEl = document.querySelector('.main-continer');
+    let limitTop = document.querySelector('#nav_ul').children.length * 42 + 162;
+    window.addEventListener('scroll', function(e) {
+    if (document.scrollingElement.scrollTop >= limitTop) {
+      if (!hasFix) {
+        sidebar.classList.add('sidebar-fixed');
+        hasFix = true;
+      }
+    } else {
+      if (hasFix) {
+        sidebar.classList.remove('sidebar-fixed');
+        hasFix = false;
+      }
+    }
+  });
+  }
+  
+</script>
+          <div class="section-box box-shadow-wrapper">
+            <div class="section bg-color post post-page">
+              <div class="article-box">
+    <header class="post-header">
+  <h1 class="post-title">
+    <a class="post-title-link" href="https://orange-hou.github.io/post/xiang-liang-jian-suo-chu-tan/">
+      向量检索初探
+    </a>
+  </h1>
+  <div class="post-meta">
+    
+    <span class="meta-item pc-show">
+      <i class="fa fa-calendar-o"></i>
+      <span>发布于</span>
+      <span>2020-02-03</span>
+      <span class="post-meta-divider pc-show">|</span>
+    </span>
+    
+      <span class="meta-item">
+        <i class="fa fa-folder-o"></i>
+        <span class="pc-show">分类于</span>
+        
+          
+            <a href="https://orange-hou.github.io/tag/SXpmPo5vx/">
+              <span>向量检索</span>
+            </a>
+          
+        
+      </span>
+      <span class="post-meta-divider">|</span>
+    
+    <span class="meta-item">
+      <i class="fa fa-clock-o"></i>
+      <span>10分钟</span>
+    </span>
+    <span class="meta-item">
+      <span class="post-meta-divider">|</span>
+      <i class="fa fa-file-word-o"></i>
+      <span>2436<span class="pc-show">字数</span></span>
+    </span>
+  </div>
+</header>
+</div>
+              <div class="post-body next-md-body" id="post_body">
+                <h2 id="一-何为向量检索">一、何为向量检索？</h2>
+<p>提到向量这个词，相信大家都不会陌生，用几何数学知识解释就是带有方向的线段，那么向量搜索又是什么东西？我们先用一个二维直角坐标系来表示一下三个点向量A(1,2)、B(1,0)、C(0,2)：</p>
+<blockquote>
+<figure data-type="image" tabindex="1"><img src="https://orange-hou.github.io//post-images/1584285736041.png" alt="" loading="lazy"></figure>
+</blockquote>
+<p>根据如下欧几里得距离计算公式：</p>
+<blockquote>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>d</mi><mo>=</mo><msqrt><mrow><mo>(</mo><mi>x</mi><mn>0</mn><mo>−</mo><mi>x</mi><mn>1</mn><msup><mo>)</mo><mn>2</mn></msup><mo>+</mo><mo>(</mo><mi>y</mi><mn>0</mn><mo>−</mo><mi>y</mi><mn>1</mn><msup><mo>)</mo><mn>2</mn></msup></mrow></msqrt></mrow><annotation encoding="application/x-tex">d=\sqrt{(x0-x1)^2+(y0-y1)^2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">d</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.24em;vertical-align:-0.30499999999999994em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.935em;"><span class="svg-align" style="top:-3.2em;"><span class="pstrut" style="height:3.2em;"></span><span class="mord" style="padding-left:1em;"><span class="mopen">(</span><span class="mord mathdefault">x</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord mathdefault">x</span><span class="mord">1</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mord">1</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-2.8950000000000005em;"><span class="pstrut" style="height:3.2em;"></span><span class="hide-tail" style="min-width:1.02em;height:1.28em;"><svg width='400em' height='1.28em' viewBox='0 0 400000 1296' preserveAspectRatio='xMinYMin slice'><path d='M263,681c0.7,0,18,39.7,52,119c34,79.3,68.167,
+158.7,102.5,238c34.3,79.3,51.8,119.3,52.5,120c340,-704.7,510.7,-1060.3,512,-1067
+c4.7,-7.3,11,-11,19,-11H40000v40H1012.3s-271.3,567,-271.3,567c-38.7,80.7,-84,
+175,-136,283c-52,108,-89.167,185.3,-111.5,232c-22.3,46.7,-33.8,70.3,-34.5,71
+c-4.7,4.7,-12.3,7,-23,7s-12,-1,-12,-1s-109,-253,-109,-253c-72.7,-168,-109.3,
+-252,-110,-252c-10.7,8,-22,16.7,-34,26c-22,17.3,-33.3,26,-34,26s-26,-26,-26,-26
+s76,-59,76,-59s76,-60,76,-60z M1001 80H40000v40H1012z'/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.30499999999999994em;"><span></span></span></span></span></span></span></span></span></p>
+</blockquote>
+<p>我们可以计算出AB、AC的长度分别为2、1，因此，我们可以得出结论A离C更近，向量A与向量C更相似，这就是一个简单的向量搜索。除欧几里得距离之外，计算向量相似度还可以通过向量夹角的余弦值来实现，熟悉全文检索或者Lucene的同学应该知道有个向量空间模型的算法(VSM)，其中就是通过计算余弦值来得到向量相似度进行打分。</p>
+<h2 id="二-向量聚类">二、向量聚类</h2>
+<p>向量检索有两个基本参数，一个是n，表示需要用于检索的目标向量个数，另一个是k，表示查找最相似的前k个向量即top-k，向量检索有如下两类方法 ：</p>
+<blockquote>
+<p>存在最近邻检索（Nearest Neighbor Search，NN）和近似最近邻检索（Approximate Nearest Neighbor Search， ANN）。NN 最初是用目标向量和数据库向量逐条计算距离，结果最为精确，后来又产生了相关算法（比如 KD-tree），使得搜索效率大为提高，但在应对海量高维度数据时显得力不从心。ANN 则是在可接受的精度条件下通过把向量分簇建立索引，大幅提高搜索效率，这也大规模向量检索场景下所使用的主要方法</p>
+</blockquote>
+<p>这里的向量分簇其实就是聚类，将向量按标准（取决于聚类算法）进行分类，向量进行聚类后分成很多簇，每个簇都有一个中心向量，当用户输入目标向量进行搜索时，先与中心向量进行相似度计算，挑选出距离最近的几个簇，然后再把目标向量与选中的簇里的每一条向量继续做相似度计算，最后得出top-k。</p>
+<p>当向量规模足够大时就面临着海量数据持久化及检索性能的问题：</p>
+<blockquote>
+<p>大规模向量检索的系统作为一个向量数据库，不但要能够支持海量数据的持久化，还要能快速地检索出用户需要的信息。生产环境中的向量维度一般起步就是128维，高一些的可达512维。我们可以算一下，对于512维度的向量，每条向量有512个数值，通常在计算机里这些数值是以 float 类型表示，这意味着每条向量将会占用2048字节，那么一亿条这样的向量就会用掉200 GB。而生产环境中的向量数量有可能达到十亿甚至百亿的规模。</p>
+</blockquote>
+<p>目前，我们无需深入了解向量聚类及相似度计算算法，可借助一些热门的向量检索框架，达到直接实现简单向量检索的需求。</p>
+<h2 id="三-faiss">三、Faiss</h2>
+<h3 id="whats-faiss">What's Faiss?</h3>
+<p>Faiss是由Facebook AI团队开发的一个向量搜索库，我们来看下Facebook官方对其的解释：</p>
+<blockquote>
+<p>Faiss is a library for efficient similarity search and clustering of dense vectors. It contains algorithms that search in sets of vectors of any size, up to ones that possibly do not fit in RAM. It also contains supporting code for evaluation and parameter tuning. Faiss is written in C++ with complete wrappers for Python (versions 2 and 3). Some of the most useful algorithms are implemented on the GPU</p>
+</blockquote>
+<p>总结一下，其实就是一个用C++编写、Python包装的用于高性能相似度搜索和密集向量聚类的库，并且它还包含了可以搜索任意大小的向量集的算法。我们来看下它有什么特性：</p>
+<h3 id="faiss特性">Faiss特性</h3>
+<ul>
+<li>支持向量相似度检索和聚类</li>
+<li>支持多种索引方式</li>
+<li>支持CPU和GPU计算</li>
+<li>支持Python和C++调用</li>
+</ul>
+<p>提到搜索，当然少不了索引，再来看下它支持的索引类型：</p>
+<h3 id="faiss索引类型">Faiss索引类型</h3>
+<p>Faiss索引分为基本索引、二进制索引，以及基于前两种的综合索引，先来了解下Faiss的基本索引，关于索引的详细信息可移步<a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes">Faiss Github</a>进一步学习。</p>
+<ul>
+<li>Exact Search for L2 (基于L2距离的确定搜索匹配)</li>
+<li>Exact Search for Inner Product (基于内积的确定搜索匹配)</li>
+<li>Hierarchical Navigable Small World graph exploration (分层索引)</li>
+<li>Inverted file with exact post-verification (倒排索引)</li>
+<li>Locality-Sensitive Hashing (binary flat index) (本地敏感hash)</li>
+<li>Scalar quantizer (SQ) in flat mode (标量量化索引)</li>
+<li>Product quantizer (PQ) in flat mode (乘积量化索引)</li>
+<li>IVF and scalar quantizer (倒排+标量量化索引)</li>
+<li>IVFADC (coarse quantizer+PQ on residuals) (倒排+乘积量化索引)</li>
+<li>IVFADC+R (same as IVFADC with re-ranking based on codes) (倒排+乘积量化索引 + 基于编码器重排索引)</li>
+</ul>
+<p>作为一个向量检索的门外汉，一眼看到这些索引类型的名字基本懵了，知道Lucene的童鞋肯定知道上面第四个倒排索引，关于以上索引类型的详细介绍及使用场景，可参考<a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes">Faiss-indexes</a>，上面都有完整的介绍及使用demo，这里就不再赘述（翻译）了，可以重点学习下<a href="https://mccormickml.com/2017/10/13/product-quantizer-tutorial-part-1/">PQ</a>（乘积量化）哦，它是Faiss的核心。</p>
+<h2 id="四-milvus">四、Milvus</h2>
+<h3 id="whats-milvus">What's Milvus?</h3>
+<p>同样Milvus也是用于做向量检索的，我们来看下Milvus官网对其的介绍：</p>
+<blockquote>
+<p>Milvus 是一款开源的、针对海量特征向量的相似性搜索引擎。基于异构众核计算框架设计，成本更低，性能更好。 在有限的计算资源下，十亿向量搜索仅毫秒响应。Milvus 能够广泛应用于各种 AI 场景，为 AI 发展提供有效助力</p>
+</blockquote>
+<p>我们来挑几个关键词，“特征向量”、“搜索引擎”、“毫秒响应”，再来看看它的特性：</p>
+<h3 id="milvus特性">Milvus特性</h3>
+<blockquote>
+<ul>
+<li>异构计算：Milvus采用异构计算架构设计，以实现最佳性能和成本效率。</li>
+<li>多种索引：Milvus支持多种索引类型，这些索引类型采用量化，基于树的索引和图形索引技术。</li>
+<li>智能资源管理：Milvus根据您的数据集和可用资源自动调整搜索计算和索引构建过程。</li>
+<li>横向可扩展性：Milvus支持在线/离线扩展，可通过简单的命令扩展存储和计算资源。</li>
+<li>高可用性：Milvus与Kubernetes框架集成在一起，因此可以避免所有单点故障。</li>
+<li>高兼容性：Milvus与几乎所有深度学习模型和主要编程语言（例如Python，Java和C ++等）兼容。</li>
+<li>使用方便：只需几个步骤，即可轻松安装Milvus，并使您能够专注于特征向量。</li>
+<li>可视化监控器：您可以在基于Prometheus的GUI监视器仪表板上跟踪系统性能。</li>
+</ul>
+</blockquote>
+<p>咋一看，特性明显比Faiss多了不少，还带有资源管理及对高可用、高兼容的支持，似乎比Faiss好用多了。来看下它的索引类型：</p>
+<h3 id="mivus索引类型">Mivus索引类型</h3>
+<blockquote>
+<p><img src="https://orange-hou.github.io//post-images/1584285776054.png" alt="" loading="lazy"><br>
+注：图片来源（https://www.milvus.io/docs/v0.6.0/reference/index.md ）</p>
+</blockquote>
+<p>索引类型不多，目前CPU版Milvus建议采用IVFSQ8，GPU版Milvus建议采用IVFSQ8H，同样，Mivlus官网及博客上有关于索引的详细介绍及测试报告，可移步官网进一步学习。</p>
+<h2 id="五-sptag">五、SPTAG</h2>
+<h3 id="whats-sptag">What's SPTAG?</h3>
+<p>SPTAG是由微软开发的，来看下微软对其的介绍：</p>
+<blockquote>
+<p>This library assumes that the samples are represented as vectors and that the vectors can be compared by L2 distances or cosine distances. Vectors returned for a query vector are the vectors that have smallest L2 distance or cosine distances with the query vector.</p>
+<p>SPTAG provides two methods: kd-tree and relative neighborhood graph (SPTAG-KDT) and balanced k-means tree and relative neighborhood graph (SPTAG-BKT). SPTAG-KDT is advantageous in index building cost, and SPTAG-BKT is advantageous in search accuracy in very high-dimensional data</p>
+</blockquote>
+<p>有点抽象，我们简单总结一下，SPTAG是通过L2距离和余弦距离来比较向量，是一个基于最近邻搜索的向量检索算法库。</p>
+<p>关于SPTAG由于当前并不是非常流行，相比前两种框架使用者较少，因而暂不继续研究下去。</p>
+<h2 id="六-简单的对比">六、简单的对比</h2>
+<p>知道了如上三种常用的向量检索框架，我们再来对它们做一个对比总结，其实最本质的区别就是Faiss和SPTAG都是搜索库，而Milvus是搜索引擎，嗯，有点类似Luene和Solr/Elasticsearch的关系，当然Milvus底层用到了Faiss，而SPTAG与这两者似乎没啥调用与被调用关系，Mivus官网有一张对比图，已经讲得很清楚了：</p>
+<blockquote>
+<p><img src="https://orange-hou.github.io//post-images/1584285803536.jpg" alt="" loading="lazy"><br>
+注：图片来源（https://www.milvus.io/cn/docs/v0.6.0/reference/comparison.md ）</p>
+</blockquote>
+<p>不过要注意，Faiss和SPTAG是没有Java SDK的哦，想要用Java调用的同学，需要用JNI进一步封装。最后我们挑些重点再总结一下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">\</th>
+<th style="text-align:center">Faiss</th>
+<th style="text-align:center">Milvus</th>
+<th style="text-align:center">SPTAG</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">本质</td>
+<td style="text-align:center">搜索算法库</td>
+<td style="text-align:center">搜索引擎</td>
+<td style="text-align:center">近似最近邻搜索库</td>
+</tr>
+<tr>
+<td style="text-align:center">上手/使用难易</td>
+<td style="text-align:center">较难，需有相关经验及知识储备</td>
+<td style="text-align:center">较易</td>
+<td style="text-align:center">较难，需有相关经验</td>
+</tr>
+<tr>
+<td style="text-align:center">支持Java</td>
+<td style="text-align:center">不支持</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center">不支持</td>
+</tr>
+<tr>
+<td style="text-align:center">典型应用场景</td>
+<td style="text-align:center">多媒体文件相似度搜索</td>
+<td style="text-align:center">图片搜索、视频处理、自然语言分析、声纹识别和音频搜索</td>
+<td style="text-align:center">图片搜索、语义匹配</td>
+</tr>
+</tbody>
+</table>
+<h2 id="参考资料">参考资料</h2>
+<ol>
+<li>
+<p><a href="https://github.com/facebookresearch/faiss/wiki">Faiss wiki(https://github.com/facebookresearch/faiss/wiki)</a></p>
+</li>
+<li>
+<p><a href="https://www.milvus.io/cn/docs/v0.6.0/about_milvus/overview.md">Milvus官方文档(https://www.milvus.io/cn/docs/v0.6.0/about_milvus/overview.md)</a></p>
+</li>
+<li>
+<p><a href="https://www.milvus.io/cn/blogs/2019-11-07-massive-vector-search.md">大规模向量检索(https://www.milvus.io/cn/blogs/2019-11-07-massive-vector-search.md)</a></p>
+</li>
+<li>
+<p><a href="https://github.com/facebookresearch/faiss/wiki">SPTAG wiki(https://github.com/microsoft/SPTAG)</a></p>
+</li>
+</ol>
+
+              </div>
+              <div class="post-footer">
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>本文作者：</strong>
+      侯橙橙的博客
+    </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://orange-hou.github.io/post/xiang-liang-jian-suo-chu-tan/" title="向量检索初探">向量检索初探</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong>
+      本博客所有文章除特别声明外，转载请注明出处！
+    </li>
+  </ul>
+  <div class="tags">
+    
+      <a href="https://orange-hou.github.io/tag/SXpmPo5vx/"># 向量检索</a>
+    
+  </div>
+  <div class="nav">
+    <div class="nav-prev">
+      
+    </div>
+    <div class="nav-next">
+      
+    </div>
+  </div>
+</div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-box">
+  <footer class="footer">
+    <!--<div class="copyright">
+      © 2019-2020 <i class="fa fa-heart"></i> HsxyHao
+    </div>-->
+    <div class="poweredby">
+      Powered by <a href="https://orange-hou.github.io/" target="_blank">侯橙橙的博客</a>
+    </div>
+  </footer>
+  
+  
+    <div class="drawer-box left" id="drawer_box">
+      <span class="muse-line muse-line-first"></span>
+      <span class="muse-line muse-line-middle"></span>
+      <span class="muse-line muse-line-last"></span>
+    </div>
+  
+  <div class="mist back-to-top" id="back_to_top">
+    <i class="fa fa-arrow-up"></i>
+    
+  </div>
+  
+  
+  
+</div>
+<script>
+
+  let sideBarOpen = 'sidebar-open';
+  let body = document.body;
+  let back2Top = document.querySelector('#back_to_top'),
+  back2TopText = document.querySelector('#back_to_top_text'),
+  drawerBox = document.querySelector('#drawer_box'),
+  rightSideBar = document.querySelector('.sidebar'),
+  viewport = document.querySelector('body');
+
+  function scrollAnimation(currentY, targetY) {
+   
+    let needScrollTop = targetY - currentY
+    let _currentY = currentY
+    setTimeout(() => {
+      const dist = Math.ceil(needScrollTop / 10)
+      _currentY += dist
+      window.scrollTo(_currentY, currentY)
+      if (needScrollTop > 10 || needScrollTop < -10) {
+        scrollAnimation(_currentY, targetY)
+      } else {
+        window.scrollTo(_currentY, targetY)
+      }
+    }, 1)
+  }
+
+  back2Top.addEventListener("click", function(e) {
+    scrollAnimation(document.scrollingElement.scrollTop, 0);
+    e.stopPropagation();
+    return false;
+  });
+  
+  window.addEventListener('scroll', function(e) {
+    let percent = document.scrollingElement.scrollTop / (document.scrollingElement.scrollHeight - document.scrollingElement.clientHeight) * 100;
+    if (percent > 1 && !back2Top.classList.contains('back-top-active')) {
+      back2Top.classList.add('back-top-active');
+    }
+    if (percent == 0) {
+      back2Top.classList.remove('back-top-active');
+    }
+    if (back2TopText) {
+      back2TopText.textContent = Math.floor(percent);
+    }
+  });
+
+  
+  let hasCacu = false;
+  window.onresize = function() {
+    if (window.width > 991) {
+      calcuHeight();
+    } else {
+      hasCacu = false;
+    }
+  }
+
+  function calcuHeight() {
+    // 动态调整站点概览高度
+    if (!hasCacu && back2Top.classList.contains('pisces') || back2Top.classList.contains('gemini')) {
+      let sideBar = document.querySelector('.sidebar');
+      let navUl = document.querySelector('#site_nav');
+      sideBar.style = 'margin-top:' + (navUl.offsetHeight + navUl.offsetTop + 15) + 'px;';
+      hasCacu = true;
+    }
+  }
+  calcuHeight();
+  
+  let open = false, MOTION_TIME = 300, RIGHT_MOVE_DIS = '320px';
+
+  if (drawerBox) {
+    let rightMotions = document.querySelectorAll('.right-motion');
+    let right = drawerBox.classList.contains('right');
+
+    let transitionDir = right ? "transition.slideRightIn" : "transition.slideLeftIn";
+
+    let openProp, closeProp;
+    if (right) {
+      openProp = {
+        paddingRight: RIGHT_MOVE_DIS 
+      };
+      closeProp = {
+        paddingRight: '0px'
+      };
+    } else {
+      openProp = {
+        paddingLeft: RIGHT_MOVE_DIS 
+      };
+      closeProp = {
+        paddingLeft: '0px'
+      };
+    }
+
+    drawerBox.onclick = function() {
+      open = !open;
+      window.Velocity(rightSideBar, 'stop');
+      window.Velocity(viewport, 'stop');
+      window.Velocity(rightMotions, 'stop');
+      if (open) {
+        window.Velocity(rightSideBar, {
+          width: RIGHT_MOVE_DIS
+        }, {
+          duration: MOTION_TIME,
+          begin: function() {
+            window.Velocity(rightMotions, transitionDir,{ });
+          }
+        })
+        window.Velocity(viewport, openProp,{
+          duration: MOTION_TIME
+        });
+      } else {
+        window.Velocity(rightSideBar, {
+          width: '0px'
+        }, {
+          duration: MOTION_TIME,
+          begin: function() {
+            window.Velocity(rightMotions, {
+              opacity: 0
+            });
+          }
+        })
+        window.Velocity(viewport, closeProp ,{
+          duration: MOTION_TIME
+        });
+      }
+      for (let i = 0; i < drawerBox.children.length; i++) {
+        drawerBox.children[i].classList.toggle('muse-line');
+      }
+      drawerBox.classList.toggle(sideBarOpen);
+    }
+  }
+
+  // 代码高亮
+  hljs.initHighlightingOnLoad();
+
+</script>
+    </div>
+  </body>
+  <script src="/media/js/motion.js"></script>
+</html>
