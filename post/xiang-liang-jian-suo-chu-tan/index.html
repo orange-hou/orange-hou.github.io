@@ -7,7 +7,7 @@
 <meta name="description" content="如水般清澈，如酒般清冽，如茶般清雅">
 <meta name="theme-color" content="#000">
 <title>向量检索初探 | 侯橙橙的博客</title>
-<link rel="shortcut icon" href="https://orange-hou.github.io//favicon.ico?v=1584320860912">
+<link rel="shortcut icon" href="https://orange-hou.github.io//favicon.ico?v=1584330299740">
 <link rel="stylesheet" href="https://orange-hou.github.io//styles/main.css">
 
 <link rel="stylesheet" href="/media/css/mist.css">
@@ -493,7 +493,7 @@ window.addEventListener('load', function() {
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>2436<span class="pc-show">字数</span></span>
+      <span>2420<span class="pc-show">字数</span></span>
     </span>
   </div>
 </header>
@@ -593,7 +593,7 @@ s76,-59,76,-59s76,-60,76,-60z M1001 80H40000v40H1012z'/></svg></span></span></sp
 <p>有点抽象，我们简单总结一下，SPTAG是通过L2距离和余弦距离来比较向量，是一个基于最近邻搜索的向量检索算法库。</p>
 <p>关于SPTAG由于当前并不是非常流行，相比前两种框架使用者较少，因而暂不继续研究下去。</p>
 <h2 id="六-简单的对比">六、简单的对比</h2>
-<p>知道了如上三种常用的向量检索框架，我们再来对它们做一个对比总结，其实最本质的区别就是Faiss和SPTAG都是搜索库，而Milvus是搜索引擎，嗯，有点类似Luene和Solr/Elasticsearch的关系，当然Milvus底层用到了Faiss，而SPTAG与这两者似乎没啥调用与被调用关系，Mivus官网有一张对比图，已经讲得很清楚了：</p>
+<p>知道了如上三种常用的向量检索框架，我们再来对它们做一个对比总结，其实最本质的区别就是Faiss和SPTAG都是搜索库，而Milvus是搜索引擎，嗯，有点类似Luene和Solr/Elasticsearch的关系，当然Milvus底层也是用到了Faiss。Mivus官网有一张对比图，已经讲得很清楚了：</p>
 <blockquote>
 <p><img src="https://orange-hou.github.io//post-images/1584285803536.jpg" alt="" loading="lazy"><br>
 注：图片来源（https://www.milvus.io/cn/docs/v0.6.0/reference/comparison.md ）</p>
