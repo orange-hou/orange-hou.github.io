@@ -6,7 +6,7 @@
 <meta name="keywords" content="侯橙橙个人博客">
 <meta name="description" content="如水般清澈，如酒般清冽，如茶般清雅">
 <meta name="theme-color" content="#000">
-<title>About Me | 侯橙橙的博客</title>
+<title>谈谈常用的负载均衡策略 | 侯橙橙的博客</title>
 <link rel="shortcut icon" href="https://orange-hou.github.io//favicon.ico?v=1591629176821">
 <link rel="stylesheet" href="https://orange-hou.github.io//styles/main.css">
 
@@ -25,8 +25,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content="About Me" />
-    <meta name="keywords" content="" />
+    <meta name="description" content="谈谈常用的负载均衡策略" />
+    <meta name="keywords" content="分布式,负载均衡" />
   </head>
   <body>
     <div class="head-top-line"></div>
@@ -135,9 +135,17 @@
 <div class="sidebar">
     <div class="sidebar-box box-shadow-wrapper  right-motion" id="sidebar">
       
+        <div class="post-list-sidebar">
+          <div class="sidebar-title">
+            <span id="tocSideBar" class="sidebar-title-item sidebar-title-active">文章目录</span>
+            <span id="metaSideBar" class="sidebar-title-item">站点概览</span>
+          </div>
+        </div>
+      
       <div class="sidebar-body mist" id="sidebar_body">
         
-          
+          <div class="post-side-meta" id="post_side_meta">
+            
 <div class="sidebar-wrapper box-shadow-wrapper ">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="https://orange-hou.github.io//images/avatar.png"/>
@@ -170,6 +178,188 @@
 
 
 </div>
+          </div>
+          <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+            <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto" id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1">负载均衡</a></li>
+<li><a href="#%E8%BD%AE%E8%AF%A2">轮询</a></li>
+<li><a href="#%E5%8A%A0%E6%9D%83%E8%BD%AE%E8%AF%A2">加权轮询</a></li>
+<li><a href="#%E6%9C%80%E5%BF%AB%E5%93%8D%E5%BA%94">最快响应</a></li>
+<li><a href="#%E6%9C%80%E5%B0%8F%E8%BF%9E%E6%8E%A5%E6%95%B0">最小连接数</a></li>
+<li><a href="#%E5%93%88%E5%B8%8C">哈希</a></li>
+<li><a href="#%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C">一致性哈希</a></li>
+<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1; 
+let active = 'active-show', activeClass = 'active-current';
+let tocWrapper = document.querySelector('#toc_wrapper');
+let tocContent = tocWrapper.children[0];
+let autoNumber = tocWrapper&&tocWrapper.classList.contains('auto-number');
+
+function addTocNumber(elem, deep) {
+  if (!elem) {
+    return;
+  }
+  let prop = elem.__proto__;
+
+  if (prop === HTMLUListElement.prototype) {
+    for (let i = 0; i < elem.children.length; i++) {
+      addTocNumber(elem.children[i], deep + (i + 1) + '.');
+    }
+  } else if (prop === HTMLLIElement.prototype) {
+    // 保存li元素
+    lList.push(elem);
+    for (let i = 0; i < elem.children.length; i++) {
+      let cur = elem.children[i];
+      if (cur.__proto__ === HTMLAnchorElement.prototype) {
+        if (autoNumber) {
+          cur.text =  deep + ' ' + cur.text;
+        }
+      } else if (cur.__proto__ === HTMLUListElement.prototype) {
+        addTocNumber(cur, deep);
+      }
+    }
+  }
+}
+
+
+document.addEventListener('scroll', function(e) {
+  if (lList.length <= 0) {
+    return;
+  }
+  let scrollTop = document.scrollingElement.scrollTop;
+  let dir;
+
+  if (lastTop - scrollTop > 0) {
+    dir = 'up';
+  } else {
+    dir = 'down';
+  }
+
+  lastTop = scrollTop;
+  if (scrollTop <= 0) {
+    if (lastIndex >= 0 && lastIndex < hList.length) {
+      lList[lastIndex].classList.remove(activeClass);
+    }
+    return;
+  }
+
+  let current = 0, hasFind = false;
+  for (let i = 0; i < hList.length; i++) {
+    if (hList[i].offsetTop > scrollTop) {
+      current = i;
+      hasFind = true;
+      break;
+    }
+  }
+  if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+    current = hList.length - 1;
+  } else {
+    current--;
+  }
+  if (dir === 'down') {
+    if (current > lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex) 
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  } else {
+    if (current < lastIndex) {
+      addActiveClass(current);
+      removeActiveClass(lastIndex);
+      lastIndex = current;
+      removeParentActiveClass();
+      lList[current] && addActiveLiElemment(lList[current].parentElement,tocContent);
+    }
+  }
+});
+
+function removeParentActiveClass() {
+  let parents = tocContent.querySelectorAll('.'+active)
+  parents.forEach(function(elem) {
+    elem.classList.remove(active);
+  });
+}
+
+function addActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.add(activeClass);
+  }
+}
+
+function removeActiveClass(index) {
+  if (index >= 0 && index < hList.length) {
+    lList[index].classList.remove(activeClass);
+  }
+}
+
+function addActiveLiElemment(elem, parent) {
+  if (!elem || elem === parent) {
+    return;
+  } else {
+    if (elem.__proto__ === HTMLLIElement.prototype) {
+      elem.classList.add(active);
+    }
+    addActiveLiElemment(elem.parentElement, parent);
+  }
+}
+
+function showToc() {
+  if (tocWrapper) {
+    postBody = document.querySelector('#post_body');
+    for (let i = 0; i < postBody.children.length; i++) {
+      if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+        hList.push(postBody.children[i]);
+      }
+    }
+    if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+    } else if (tocWrapper.classList.contains('no_compress')){
+      tocContent.classList.add('expanded');
+    } else {
+      if (hList.length > 10) {
+        active = 'active-hidden'
+        tocContent.classList.add('closed');
+      } else {
+        tocContent.classList.add('expanded');
+      }
+    }
+  }
+}
+addTocNumber(tocContent, '');
+
+window.addEventListener('load', function() {
+  showToc();
+  document.querySelector('#sidebar').style='display: block;';
+  tocWrapper.classList.add('toc-active');
+  setTimeout(function() {
+    if ("createEvent" in document) {
+      let evt = document.createEvent("HTMLEvents");
+      evt.initEvent("scroll", false, true);
+      document.dispatchEvent(evt);
+    }
+    else {
+      document.fireEvent("scroll");
+    }
+  }, 500)
+})
+
+</script>
+          </div>
         
       </div>
     </div>
@@ -255,8 +445,8 @@
               <div class="article-box">
     <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://orange-hou.github.io/post/about/">
-      About Me
+    <a class="post-title-link" href="https://orange-hou.github.io/post/tan-tan-chang-yong-de-fu-zai-jun-heng-ce-lue/">
+      谈谈常用的负载均衡策略
     </a>
   </h1>
   <div class="post-meta">
@@ -264,30 +454,89 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2019-01-25</span>
+      <span>2019-05-01</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
+      <span class="meta-item">
+        <i class="fa fa-folder-o"></i>
+        <span class="pc-show">分类于</span>
+        
+          
+            <a href="https://orange-hou.github.io/tag/bb0iTWDoH/">
+              <span>分布式</span>
+            </a>、
+          
+        
+          
+            <a href="https://orange-hou.github.io/tag/hmDddN8w4/">
+              <span>负载均衡</span>
+            </a>
+          
+        
+      </span>
+      <span class="post-meta-divider">|</span>
+    
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
+      <span>4分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>62<span class="pc-show">字数</span></span>
+      <span>1125<span class="pc-show">字数</span></span>
     </span>
   </div>
 </header>
 </div>
               <div class="post-body next-md-body" id="post_body">
-                <p>一个95年的老男孩，软工专业毕业。<br>
-Java程序猿（头发不少！），从大四实习开始接触全文检索领域。<br>
-日常爱好么，科幻电影？篮球？（好久没打了）码代码？（强行算一个吧）</p>
-<!--## 🏠 关于本站-->
-<!--## 👨‍💻 博主是谁-->
-<!--## ⛹ 兴趣爱好-->
-<!--## 📬 联系我呀-->
+                <p>由于项目中用到了负载均衡策略，因而对几种常用的负载均衡策略做一个总结</p>
+<!-- more -->
+<h2 id="负载均衡">负载均衡</h2>
+<p>负载均衡一般和高并发、集群等关键词联系在一起，通俗的讲就是将流量均匀地分发到不同的服务器或节点上。当流量比较大的时候，我们需要通过负载均衡来控制流量的分发，避免造成局部节点负载过大影响服务的情况。负载均衡其实就是选取路由节点的过程，至于如何选取节点，来看看常用的负载均衡策略：</p>
+<h2 id="轮询">轮询</h2>
+<p>比较简单的策略，每个节点挨个轮着来：</p>
+<figure data-type="image" tabindex="1"><img src="https://orange-hou.github.io//post-images/1591623294953.jpg" alt="" loading="lazy"></figure>
+<p>如图，五个请求按顺序依此发往三个节点上，这种策略适用于每个节点资源（机器）配置相同的场景。</p>
+<h2 id="加权轮询">加权轮询</h2>
+<p>轮询策略的升级版，增加了对每个节点权重的配置，权重决定了最终每个节点分配到的请求数：</p>
+<figure data-type="image" tabindex="2"><img src="https://orange-hou.github.io//post-images/1591623304523.jpg" alt="" loading="lazy"></figure>
+<p>如图，三个节点分别配置了1：2：2的权重比，一共五个请求，Node1上路由到了一个请求，Node2和Node3都是两个，满足了1：2：2的权重比例。需要注意的是，依据不同的实现，可能相同的节点路由到的节点不一样，但是能保证的是最终的节点请求数比例满足权重比。</p>
+<h2 id="最快响应">最快响应</h2>
+<p>动态负载均衡策略，根据每个节点对过去一段时间内的响应情况来分配，响应越快分配的越多。</p>
+<figure data-type="image" tabindex="3"><img src="https://orange-hou.github.io//post-images/1591623313611.jpg" alt="" loading="lazy"></figure>
+<p>其实可以通过上面的加权轮询来实现，只不过权重是依据响应时间自动调整的。</p>
+<h2 id="最小连接数">最小连接数</h2>
+<p>也是动态负载均衡策略，需要维护每个节点实时的活跃连接数，挑选连接数最小的节点路由：</p>
+<figure data-type="image" tabindex="4"><img src="https://orange-hou.github.io//post-images/1591623321762.jpg" alt="" loading="lazy"></figure>
+<h2 id="哈希">哈希</h2>
+<p>哈希函数相信大家都不会陌生，哈希策略需要依赖客户端及哈希函数，将客户端传递的请求参数或者客户端标识经过哈希函数计算得到一个值，再依据该值选择节点：</p>
+<figure data-type="image" tabindex="5"><img src="https://orange-hou.github.io//post-images/1591623328546.jpg" alt="" loading="lazy"></figure>
+<p>假设哈希函数是 %3，五个请求分别编号为1、2、3、4、5，三个节点编号为0、1、2，将编号进行哈希运算得到的值直接对应到节点编号。</p>
+<h2 id="一致性哈希">一致性哈希</h2>
+<p>一致性哈希策略是哈希策略的升级版，核心就是一致性哈希算法：</p>
+<p><strong>传统哈希</strong></p>
+<p>上面提到的哈希策略是有局限性的，假设我们用取余的方式（<code>mod(key, n)</code>）进行映射，当进行扩容或者缩容时，映射关系变为 <code>mod(key, n+1)</code> / <code>mod(key, n-1)</code>，绝大多数数据的映射关系都会失效。</p>
+<p><strong>一致性哈希算法</strong></p>
+<p>一致性哈希算法就是为了解决传统哈希的局限性，当单个节点失效时，最小化的影响其他节点。</p>
+<p>把数据用哈希函数映射成一个很大的空间，将整个哈希值空间组织成一个虚拟的圆环，如假设哈希函数H的值空间为0-2^32-1。整个哈希环按顺时针方向组织，将N1、N2、N3、N4四个节点通过哈希函数计算出映射值，映射到哈希环上：</p>
+<figure data-type="image" tabindex="6"><img src="https://orange-hou.github.io//post-images/1591623357095.jpg" alt="" loading="lazy"></figure>
+<p>如果这时候有A、B两个请求，通过哈希函数分别映射到圆环上：</p>
+<figure data-type="image" tabindex="7"><img src="https://orange-hou.github.io//post-images/1591623362683.jpg" alt="" loading="lazy"></figure>
+<p>按顺时针方向，A请求会路由到N1节点，B请求会路由到N3节点。</p>
+<p>试想一下，如果这时候N2节点挂掉，则原本路由到N2的节点就会路由到N3上，不会影响N1和N4节点。</p>
+<p><strong>虚拟节点</strong></p>
+<p>提到虚拟节点，我们先继续试想N2节点挂掉的情况：</p>
+<figure data-type="image" tabindex="8"><img src="https://orange-hou.github.io//post-images/1591623369583.jpg" alt="" loading="lazy"></figure>
+<p>这个时候原本路由到N2节点的请求都会路由到N3上，导致分布不均衡，很容易压垮N3，造成雪崩效应。</p>
+<p>虚拟节点就是用于解决这种问题，对每个节点计算多个哈希值，每个计算结果都放置到环中，这些节点就是虚拟节点：</p>
+<figure data-type="image" tabindex="9"><img src="https://orange-hou.github.io//post-images/1591623376611.jpg" alt="" loading="lazy"></figure>
+<p>选节点的算法还是不变，这样我们就只需要增加一层虚拟节点到实际节点的映射就可以了。</p>
+<h2 id="参考资料">参考资料</h2>
+<ol>
+<li><a href="https://blog.csdn.net/qq_29677867/article/details/90050721">常用负载均衡及策略图解</a></li>
+<li>[五分钟理解一致性哈希算法](</li>
+</ol>
 
               </div>
               <div class="post-footer">
@@ -298,7 +547,7 @@ Java程序猿（头发不少！），从大四实习开始接触全文检索领�
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://orange-hou.github.io/post/about/" title="About Me">About Me</a>
+      <a href="https://orange-hou.github.io/post/tan-tan-chang-yong-de-fu-zai-jun-heng-ce-lue/" title="谈谈常用的负载均衡策略">谈谈常用的负载均衡策略</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -307,12 +556,24 @@ Java程序猿（头发不少！），从大四实习开始接触全文检索领�
   </ul>
   <div class="tags">
     
+      <a href="https://orange-hou.github.io/tag/bb0iTWDoH/"># 分布式</a>
+    
+      <a href="https://orange-hou.github.io/tag/hmDddN8w4/"># 负载均衡</a>
+    
   </div>
   <div class="nav">
     <div class="nav-prev">
       
+        <i class="fa fa-chevron-left"></i>
+        <a class="nav-pc-next" title="Lucene索引文件" href="https://orange-hou.github.io/post/lucene-suo-yin-wen-jian/">Lucene索引文件</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="Lucene索引文件" href="https://orange-hou.github.io/post/lucene-suo-yin-wen-jian/">上一篇</a>
+      
     </div>
     <div class="nav-next">
+      
+        <a class="nav-pc-next" title="Thrift入门学习" href="https://orange-hou.github.io/post/thrift-chu-tan/">Thrift入门学习</a>
+        <a class="nav-mobile-next" title="Thrift入门学习" href="https://orange-hou.github.io/post/thrift-chu-tan/">下一篇</a>
+        <i class="fa fa-chevron-right"></i>
       
     </div>
   </div>

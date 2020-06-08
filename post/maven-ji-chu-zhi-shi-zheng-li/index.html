@@ -6,7 +6,7 @@
 <meta name="keywords" content="侯橙橙个人博客">
 <meta name="description" content="如水般清澈，如酒般清冽，如茶般清雅">
 <meta name="theme-color" content="#000">
-<title>Docker初识 | 侯橙橙的博客</title>
+<title>Maven基础知识整理 | 侯橙橙的博客</title>
 <link rel="shortcut icon" href="https://orange-hou.github.io//favicon.ico?v=1591629176821">
 <link rel="stylesheet" href="https://orange-hou.github.io//styles/main.css">
 
@@ -25,8 +25,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content="Docker初识" />
-    <meta name="keywords" content="容器技术" />
+    <meta name="description" content="Maven基础知识整理" />
+    <meta name="keywords" content="" />
   </head>
   <body>
     <div class="head-top-line"></div>
@@ -185,36 +185,12 @@
     <ul class="markdownIt-TOC">
 <li>
 <ul>
-<li><a href="#%E4%B8%80-%E8%99%9A%E6%8B%9F%E5%8C%96%E6%8A%80%E6%9C%AF%E4%B8%8E%E5%AE%B9%E5%99%A8%E5%8C%96%E6%8A%80%E6%9C%AF">一、虚拟化技术与容器化技术</a>
-<ul>
-<li><a href="#%E8%99%9A%E6%8B%9F%E5%8C%96">虚拟化</a></li>
-<li><a href="#%E5%AE%B9%E5%99%A8%E5%8C%96">容器化</a></li>
-<li><a href="#%E8%99%9A%E6%8B%9F%E6%9C%BA-or-%E5%AE%B9%E5%99%A8">虚拟机? OR 容器?</a></li>
-</ul>
-</li>
-<li><a href="#%E4%BA%8C-docker">二、Docker</a>
-<ul>
-<li><a href="#whats-docker">What's Docker?</a></li>
-<li><a href="#why-docker">Why Docker?</a></li>
-<li><a href="#docker%E6%9E%B6%E6%9E%84">Docker架构</a>
-<ul>
-<li><a href="#1docker-daemon">1.Docker daemon</a></li>
-<li><a href="#2docker-client">2.Docker client</a></li>
-<li><a href="#3docker-registry">3.Docker  registry</a></li>
-<li><a href="#4docker-objects">4.Docker objects</a></li>
-</ul>
-</li>
-<li><a href="#docker%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8">Docker的基本使用</a>
-<ul>
-<li><a href="#1docker%E5%AE%89%E8%A3%85">1.Docker安装</a></li>
-<li><a href="#2%E9%85%8D%E7%BD%AE%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F">2.配置镜像加速</a></li>
-<li><a href="#3%E5%88%9B%E5%BB%BAtomcat%E9%95%9C%E5%83%8F">3.创建Tomcat镜像</a></li>
-<li><a href="#4%E8%BF%90%E8%A1%8C%E5%AE%B9%E5%99%A8">4.运行容器</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
+<li><a href="#%E7%AE%80%E4%BB%8B">简介</a></li>
+<li><a href="#%E5%9D%90%E6%A0%87">坐标</a></li>
+<li><a href="#%E4%BB%93%E5%BA%93">仓库</a></li>
+<li><a href="#%E4%BE%9D%E8%B5%96">依赖</a></li>
+<li><a href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F">生命周期</a></li>
+<li><a href="#maven%E6%8F%92%E4%BB%B6">Maven插件</a></li>
 </ul>
 </li>
 </ul>
@@ -467,8 +443,8 @@ window.addEventListener('load', function() {
               <div class="article-box">
     <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://orange-hou.github.io/post/docker-chu-tan/">
-      Docker初识
+    <a class="post-title-link" href="https://orange-hou.github.io/post/maven-ji-chu-zhi-shi-zheng-li/">
+      Maven基础知识整理
     </a>
   </h1>
   <div class="post-meta">
@@ -476,154 +452,164 @@ window.addEventListener('load', function() {
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2020-02-02</span>
+      <span>2018-05-13</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
-      <span class="meta-item">
-        <i class="fa fa-folder-o"></i>
-        <span class="pc-show">分类于</span>
-        
-          
-            <a href="https://orange-hou.github.io/tag/7RLOn7IB_/">
-              <span>容器技术</span>
-            </a>
-          
-        
-      </span>
-      <span class="post-meta-divider">|</span>
-    
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>9分钟</span>
+      <span>10分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>2253<span class="pc-show">字数</span></span>
+      <span>2619<span class="pc-show">字数</span></span>
     </span>
   </div>
 </header>
 </div>
               <div class="post-body next-md-body" id="post_body">
-                <p>Em...简单地聊下容器技术与Docker...</p>
-<!-- more -->
-<h2 id="一-虚拟化技术与容器化技术">一、虚拟化技术与容器化技术</h2>
-<h3 id="虚拟化">虚拟化</h3>
-<p>先来简单了解下虚拟化吧，虚拟机大家应该都不会陌生吧，以前用windows主机，想玩Linux的时候，装双系统又嫌麻烦，通常会选择装个VMware或者Virtualbox，然后在上面创建Linux虚拟机。虚拟机便是虚拟化技术的一种实现，来看下VMware官方对虚拟化的解释：</p>
-<blockquote>
-<p>虚拟化是为一些组件（例如虚拟应用、服务器、存储和网络）创建基于软件的（或虚拟）表现形式的过程。</p>
-</blockquote>
-<p>通俗的讲就是通过软件手段将一些硬件资源（如CPU资源、存储资源）“虚拟”出来。</p>
-<p>那么，为什么会有虚拟化技术呢？或者它是解决什么问题的？</p>
-<p>还记得前文提到的Linux虚拟机么，如果没有虚拟化技术，我们在windows主机上想要安装Linux系统基本只能通过装双系统的方式实现，但是装双系统有个缺陷就是同一时刻你只能使用其中一个系统，不能在两个系统间随意切换，而且还需要考虑硬件兼容性问题。如此，虚拟化技术的一个好处就体现出来了：实现程序跨平台运行。</p>
-<p>除此之外，虚拟化还有一个优势在于资源管理。用过VMware的同学都知道我们可以通过VMware为我们创建的Linux虚拟机设置CPU核心数、内存大小等等，通过这些配置我们可以灵活的管控Linux虚拟机所需的资源。</p>
-<p>虚拟化技术在实际场景中有很多种分类，包括平台虚拟化、应用程序虚拟化等等，这不是这片文章的重点，网上资料也很多，这里就不再逐一介绍了（其实是懒了！）。</p>
-<h3 id="容器化">容器化</h3>
-<p>容器化又是什么呢？和虚拟化有关系么？为什么会有容器化呢？</p>
-<p>其实容器化是一种轻量级虚拟化技术，“轻”在哪里？前文提到的虚拟化技术-虚拟机是基于系统为中心实现的，而容器化则是以应用程序为中心的。容器这个词非常形象了，既然是“容器”，那它肯定能装东西喽，既然容器化是以应用程序为中心，那肯定是“装”应用程序了。</p>
-<p>其实容器技术是将一个应用程序及其所需的运行环境都打包起来变成一个沙盒“容器”，并且不同“容器”间互不干扰，独立运行。</p>
-<p>容器化技术不仅部署应用方便、隔离性好，而且在应用运行性能上要远超虚拟机等其他虚拟化实现。</p>
-<p>关于更多容器化的知识可参考<a href="https://www.docker.com/resources/what-container">Docker what-container</a>。</p>
-<h3 id="虚拟机-or-容器">虚拟机? OR 容器?</h3>
-<p>在一篇博客（文末有链接）上看到一张图，可以很直观地看出二者的区别及优劣了：</p>
-<blockquote>
-<figure data-type="image" tabindex="1"><img src="https://orange-hou.github.io//post-images/1584450324678.jpg" alt="" loading="lazy"></figure>
-</blockquote>
-<p>二者最主要的区别其实就是虚拟机中的程序是运行在虚拟机操作系统中的，而容器中的程序则是完全运行在宿主机上的，就像你主机上目前运行的程序一样。</p>
-<h2 id="二-docker">二、Docker</h2>
-<p>Docker这个词我第一次听到应该是大四实习的时候，那个时候给我印象有点深的是它的logo，很cute!! 之后工作中一直没有什么机会接触这块知识，正好最近有一次机会，一起来简单地学习下吧！咱么日常三问开头，What? Why? How?</p>
-<blockquote>
-<figure data-type="image" tabindex="2"><img src="https://orange-hou.github.io//post-images/1584450348006.jpg" alt="" loading="lazy"></figure>
-</blockquote>
-<h3 id="whats-docker">What's Docker?</h3>
-<p>来看看Docker官方对Docker的解释：</p>
-<blockquote>
-<p>Docker is an open platform for developing, shipping, and running applications. Docker enables you to separate your applications from your infrastructure so you can deliver software quickly.</p>
-</blockquote>
-<p>Docker官方将Docker定义为一个开放平台，用于开发、交付以及运行应用程序。上文不是提到了容器化嘛？Docker一般不也被叫做Docker容器么，所以docker其实就是容器化技术的一种实现，我们完全可以通过Docker来部署执行我们的应用程序。</p>
-<h3 id="why-docker">Why Docker?</h3>
-<p>我们来看下Docker有什么特性及优势：</p>
+                <h2 id="简介">简介</h2>
+<p>Maven是基于项目对象模型（POM），使用Java语言编写的开源项目管理工具，是Apache软件基金会的顶级项目。主要用于项目构建、依赖管理、项目信息管理。</p>
+<h2 id="坐标">坐标</h2>
+<p>Maven的所有构件均通过坐标进行组织和管理。maven的坐标通过5个元素进行定义，其中groupId、artifactId、version是必须的，packaging是可选的（默认为jar），classifier是不能直接定义的。</p>
 <ul>
-<li>快速部署：通过Docker容器可快速部署运行你的应用。</li>
-<li>隔离性和安全性：使用Docker可以进行资源隔离，确保每个应用程序只使用分配给它的资源，并且多个Docker容器之间互不影响。</li>
-<li>持续集成和交付：定制应用镜像来实现集成、持续支付、部署。开发人员可以通过<strong>dockerfile</strong>来进行镜像构建，并结合持续集成系统进行集成测试，而运维人员则可以直接在生产环境中快速部署该镜像，甚至结合持续部署系统进行自动部署。</li>
-<li>多平台快速迁移：由于docker确保了执行环境的一致性，使得应用的迁移更加的容易。docker可以在很多平台上运行，无论是物理机、虚拟机、公有云、私有云、甚至是笔记本、其运行结果是一致的。因此用户可以很轻易的将在一个平台上运行的应用，迁移到另一个平台上，而不用担心运行环境的变化导致应用无法正常运行的情况。</li>
+<li>groupId：定义当前Maven项目所属的实际项目，跟Java包名类似。</li>
+<li>artifactId：定义当前Maven项目的一个模块，默认情况下，Maven生成的构件，其文件名会以artifactId开头。</li>
+<li>version：定义项目版本。</li>
+<li>packaging：定义项目的打包方式，如jar、war、pom...，默认为jar</li>
+<li>classifier：定义项目的附属构件，如hibernate-core-3.6.6.Final-sources.jar，hibernate-core-3.6.6.Final-javadoc.jar，其中sources和javadoc就是这两个附属构件的classifier。classifier不能直接定义，通常由附加的插件帮助生成。</li>
 </ul>
-<p>单看这些优势是不是有点懵？我们后面会用Docker简单实操一遍，便于理解它的优势。</p>
-<h3 id="docker架构">Docker架构</h3>
-<p>Docker采用了CS架构，包括如下几个部分：</p>
-<blockquote>
-<figure data-type="image" tabindex="3"><img src="https://orange-hou.github.io//post-images/1584450370073.svg" alt="" loading="lazy"></figure>
-</blockquote>
-<h4 id="1docker-daemon">1.Docker daemon</h4>
-<p>守护进程（dockered），负责处理Client端的请求并管理Docker对象，例如镜像、容器、网络等等。</p>
-<h4 id="2docker-client">2.Docker client</h4>
-<p>Docker客户端，是用户与Docker交互的桥梁，当用户执行docker run之类的命令时，客户端将命令发送至dockered，交由dockered执行。</p>
-<h4 id="3docker-registry">3.Docker  registry</h4>
-<p>Docker注册表，代表Docker镜像存储库，默认注册表是 Docker Hub，支持配置其他注册表。</p>
-<h4 id="4docker-objects">4.Docker objects</h4>
+<h2 id="仓库">仓库</h2>
+<p><strong>2.1仓库简介</strong></p>
+<p>没有Maven时，项目用到的.jar文件通常需要拷贝到/lib目录，项目多了，拷贝的文件副本就多了，占用磁盘空间，且难于管理。Maven使用一个称之为仓库的目录，根据构件的坐标统一存储这些构件的唯一副本，在项目中通过依赖声明，可以方便的引用构件。</p>
+<p><strong>2.2仓库分类</strong></p>
+<p>Maven仓库分为本地仓库和远程仓库，寻找构件时，首先从本地仓库找，找不到则到远程仓库找，再找不到就报错；在远程仓库找到了就下载到本地仓库使用。中央仓库是Maven核心自带的远程仓库，除了中央仓库外，还有其他很多公共的远程仓库。私服是架设在本机或局域网中的一种特殊的远程仓库，通过私服可以方便的管理其他所有的外部远程仓库。</p>
+<figure data-type="image" tabindex="1"><img src="https://orange-hou.github.io//post-images/1591518958254.png" alt="" loading="lazy"></figure>
+<p>我们可以在Maven配置文件settings.xml中更改本地仓库的地址、添加远程仓库、添加镜像仓库。</p>
+<p><localRepository>标签 -------&gt;本地仓库地址</p>
+<p><repositories>标签    -------&gt;配置远程仓库</p>
+<p><mirrors>标签         -------&gt;配置镜像仓库</p>
+<p>镜像仓库可以理解为仓库的副本，针对中央仓库，国内就有它的镜像仓库，直接访问镜像仓库，更快更稳定。<mirrors>标签中有个子标签<mirrorOf>指明了为哪个仓库配置镜像，可以使用通配符如<mirrorOf>*</mirrorOf>或者<mirrorOf>repo1,repo2</mirrorOf> 等进行匹配。一旦配置了镜像，所有针对原仓库的访问将转到镜像仓库的访问，原仓库将不再能直接访问，即使镜像仓库不稳定或停用。在搭建私服的时候，我们通常为所有仓库设置镜像为私服地址，通过私服对所有仓库进行统一管理。</p>
+<h2 id="依赖">依赖</h2>
+<p><strong>3.1依赖元素</strong></p>
+<pre><code>&lt;dependencies&gt;      
+	&lt;dependency&gt;          
+		&lt;groupId&gt;org.springframework&lt;/groupId&gt;          
+		&lt;artifactId&gt;spring-test&lt;/artifactId&gt;          
+		&lt;version&gt;3.2.0.RELEASE&lt;/version&gt;          
+		&lt;type&gt;jar&lt;/type&gt;          
+		&lt;scope&gt;test&lt;/scope&gt;                   
+		&lt;optional&gt;false&lt;/optional&gt;          
+		&lt;exclusions&gt;      
+			&lt;exclusion&gt;&lt;/exclusion&gt;          
+		&lt;/exclusions&gt;      
+	&lt;/dependency&gt;
+&lt;/dependencies&gt;
+</code></pre>
 <ul>
-<li>images：镜像，一个只读的文件系统，包含容器运行时所需要的文件和配置参数。通过镜像来创建container，并且一个镜像可以运行多个container。镜像可以从仓库中下载，也可以用Dockerfile自行创建。</li>
-<li>containers：容器，是images的一个可运行实例，可以使用Docker客户端创建，启动，停止，移动或删除容器。</li>
-<li>repository：仓库，有点类似于上文的registry，就是Docker存放镜像文件的地方，可类比成Maven的仓库。当然Docker也有公有仓库和私有仓库。</li>
+<li>type：依赖类型，对应构件中定义的packaging，可不声明，默认为jar。</li>
+<li>scope：依赖范围。</li>
+<li>optional：依赖是否可选。</li>
+<li>exclusions：排除传递依赖。</li>
 </ul>
-<h3 id="docker的基本使用">Docker的基本使用</h3>
-<p>下文以在Docker中安装运行Tomcat为例介绍下Docker的基本使用方式：</p>
-<h4 id="1docker安装">1.Docker安装</h4>
-<p>注意Docker安装的前提需要操作系统支持虚拟化！</p>
-<p>windows：win7和win8需通过docker toolbox安装，win10系统需开启虚拟化（Hyper-V）后通过<a href="https://docs.docker.com/docker-for-windows/install/">Docker Desktop for Windows</a>安装</p>
-<p>macos：通过<a href="https://docs.docker.com/docker-for-mac/install/">Docker Desktop for Mac</a>安装</p>
-<p>linux：通过<a href="https://docs.docker.com/install/linux/ubuntu/">Docker for Linux</a>安装</p>
-<h4 id="2配置镜像加速">2.配置镜像加速</h4>
-<p>之前提到一个Docker registry，用于存放所有Docker镜像，由于默认配置是部署在国外的Docker Hub，后续拉取镜像十分缓慢，因而我们可以配置个加速器，我们打开Docker的控制面板，以macos上的Docker为例：</p>
-<figure data-type="image" tabindex="4"><img src="https://orange-hou.github.io//post-images/1584450389239.png" alt="" loading="lazy"></figure>
-<p>在Settings中，为Docker Engine配置镜像的registry，上图中配置的阿里云为我自己分配的镜像地址。</p>
-<p>配置完成后，可在命令行终端输入 docker info确认是否配置成功：</p>
-<figure data-type="image" tabindex="5"><img src="https://orange-hou.github.io//post-images/1584450417103.jpg" alt="" loading="lazy"></figure>
-<h4 id="3创建tomcat镜像">3.创建Tomcat镜像</h4>
-<p>从<a href="https://hub.docker.com/">Docker Hub</a>上搜索Tomcat：</p>
-<figure data-type="image" tabindex="6"><img src="https://orange-hou.github.io//post-images/1584450430655.jpg" alt="" loading="lazy"></figure>
-<p>从Tags中可以看到多个发布的镜像版本，我们直接执行docker pull tomcat，后面不加版本号，默认会拉取最新版本：</p>
-<figure data-type="image" tabindex="7"><img src="https://orange-hou.github.io//post-images/1584450439589.jpg" alt="" loading="lazy"></figure>
-<p>拉取完成后，通过命令docker images | grep tomcat查找Tomcat镜像：</p>
-<figure data-type="image" tabindex="8"><img src="https://orange-hou.github.io//post-images/1584450457205.jpg" alt="" loading="lazy"></figure>
-<p>注：还有一种通过Dockerfile构建Tomcat镜像的方式，相对比较麻烦，可以参考<a href="https://www.runoob.com/docker/docker-install-tomcat.html">菜鸟教程 Docker安装Tomcat</a>。</p>
-<h4 id="4运行容器">4.运行容器</h4>
-<p>有了镜像之后，我们可以直接通过如下命令创建容器并运行：</p>
-<p>docker run --name tomcat -p 8080:8080 -v /$PWD/test:/usr/local/tomcat/webapps/test -d tomcat</p>
+<p><strong>3.2依赖范围</strong></p>
+<p>执行不同的Maven命令（mvn package,mvn test,mvn install...），会使用不同的classpath，Maven对应的有三套：编译classpath、测试classpath、运行classpth。scope选项的值，决定了该依赖构件会被引入哪一个classpath中。</p>
 <ul>
-<li>--name：指定容器name</li>
-<li>-p：Docker容器端口和宿主机端口映射</li>
-<li>-v：将主机中当前目录下的 test 挂载到容器的 /test</li>
-<li>-d：指定镜像</li>
+<li>compile：编译依赖范围，默认值。此选项对编译、测试和运行三种classpath都有效。</li>
+<li>test：测试依赖范围。只对测试有效，表明只在测试的时候需要，在编译和运行时将无法使用该类依赖，如junit。</li>
+<li>provided：已提供依赖范围。编译和测试有效，运行无效。如servlet-api，在项目运行时，tomcat等容器已经提供，无需Maven重复引入。</li>
+<li>runtime：运行时依赖范围。测试和运行有效，编译无效。如jdbc驱动实现，编译时只需接口，测试或运行时才需要具体的jdbc驱动实现。</li>
+<li>system：系统依赖范围。和provided依赖范围一致，需要通过<systemPath>显式指定，且可以引用环境变量。scope不推荐。</li>
+<li>import：导入依赖范围。使用该选项，通常需要<type>pom</type>，将目标pom的dependencyManagement配置导入合并到当前pom的dependencyManagement元素。</li>
 </ul>
-<figure data-type="image" tabindex="9"><img src="https://orange-hou.github.io//post-images/1584450473012.jpg" alt="" loading="lazy"></figure>
-<p>执行成功后，会返回一个容器ID，我们可以通过容器ID或指定的name查看启动日志：</p>
-<p>docker logs da3888776b2cd5dc6ed26fb64c9f5c8a9a8002b5225f840a5e7beef424b75c04</p>
-<figure data-type="image" tabindex="10"><img src="https://orange-hou.github.io//post-images/1584450483122.jpg" alt="" loading="lazy"></figure>
-<p>执行docker ps 命令可查看目前运行中的容器：</p>
-<figure data-type="image" tabindex="11"><img src="https://orange-hou.github.io//post-images/1584450490355.jpg" alt="" loading="lazy"></figure>
-<p>我们还可以通过Docker控制面板，直接对创建的Docker容器做一些可视化操作：</p>
-<figure data-type="image" tabindex="12"><img src="https://orange-hou.github.io//post-images/1584450497339.jpg" alt="" loading="lazy"></figure>
-<h2 id="参考资料">参考资料</h2>
+<p><strong>3.3依赖传递</strong></p>
+<figure data-type="image" tabindex="2"><img src="https://orange-hou.github.io//post-images/1591518970200.png" alt="" loading="lazy"></figure>
+<p>如上图所示，hibernate-core依赖hibernate-commons-annotations，而hibernate-commons-annotations又依赖slf4j-api，hibernate-core对slf4j-api的依赖就是传递依赖。我们只需要引入hibernate-core构件的依赖，不用考虑它还有其他的依赖，也不用担心会引入多余或冲突的依赖，Maven会自动为我们引入依赖及传递依赖。</p>
+<p><strong>3.4依赖传递和依赖范围</strong></p>
+<figure data-type="image" tabindex="3"><img src="https://orange-hou.github.io//post-images/1591518980995.png" alt="" loading="lazy"></figure>
+<p>几种依赖关系分别叫做第一直接依赖、第二直接依赖和传递性依赖，其中第一直接依赖和第二直接依赖的范围，决定了传递性依赖的依赖范围。</p>
+<p><strong>3.5依赖冲突</strong></p>
+<p>通常我们不需要关心传递性依赖，当多个传递性依赖中有对同一构件不同版本的依赖时，如何解决呢？</p>
+<ul>
+<li>短路径优先：假如有以下依赖：A-&gt;B-&gt;C-&gt;X（版本1.0）和A-&gt;D-&gt;X（版本2.0），则优先解析较短路径的X（版本2.0）；</li>
+<li>先申明优先：若路径长度相同，则谁先申明，谁被解析。</li>
+</ul>
+<p><strong>3.6依赖排除</strong></p>
+<p>针对依赖冲突中的“短路径优先”，如果我们想使用长路径的依赖怎么办？这时可以使用依赖排除<exclusions>元素，显式排除短路径依赖。在非冲突的情况下，这种方法同样有效。</p>
+<p><strong>3.7依赖归类</strong></p>
+<p>通常在项目中，我们会同时依赖同一个构件的不同模块，如spring-orm-3.2.0，spring-context-3.2.0，且多个模块版本相同，为了维护和升级方便，我们可以对其统一管理，这时可以使用到Maven属性，类似于变量的概念。</p>
+<pre><code>&lt;properties&gt;
+	&lt;springframework.version&gt;3.2.0.RELEASE&lt;/springframework.version&gt;
+&lt;/properties&gt;
+&lt;dependencies&gt;
+	&lt;dependency&gt;
+		&lt;groupId&gt;org.springframework&lt;/groupId&gt;
+		&lt;artifactId&gt;spring-orm&lt;/artifactId&gt;
+		&lt;version&gt;${springframework.version}&lt;/version&gt;
+	&lt;/dependency&gt;
+	&lt;dependency&gt;
+		&lt;groupId&gt;org.springframework&lt;/groupId&gt;
+		&lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+		&lt;version&gt;${springframework.version}&lt;/version&gt;
+	&lt;/dependency&gt;...
+</code></pre>
+<h2 id="生命周期">生命周期</h2>
+<p><strong>4.1概念</strong></p>
+<p>Maven的生命周期就是对所有的构建过程进行抽象和统一。包含了项目的清理、初始化、编译、测试、打包、集成测试、验证、部署和站点生成等几乎所有的构建步骤。</p>
+<p>Maven的生命周期是抽象的，即生命周期不做任何实际的工作，实际任务由插件完成，类似于设计模式中的模板方法。</p>
+<p><strong>4.2三套生命周期</strong></p>
+<p>Maven有三套相互独立的生命周期，分别是clean、default和site，每个生命周期包含一些阶段（phase），阶段是有顺序的，后面的阶段依赖于前面的阶段。</p>
+<ul>
+<li>clean生命周期：清理项目，包含三个phrase。</li>
+</ul>
 <ol>
-<li>
-<p><a href="https://www.vmware.com/cn/solutions/virtualization.html">什么是虚拟化技术和虚拟机 VMware(https://www.vmware.com/cn/solutions/virtualization.html)</a></p>
-</li>
-<li>
-<p><a href="https://docs.docker.com/">Docker官方文档(https://docs.docker.com/)</a></p>
-</li>
-<li>
-<p><a href="https://blog.csdn.net/cpongo3/article/details/93623781">浅谈虚拟化和容器技术(https://blog.csdn.net/cpongo3/article/details/93623781)</a></p>
-</li>
-<li>
-<p><a href="https://www.runoob.com/docker/docker-tutorial.html">菜鸟教程 Docker(https://www.runoob.com/docker/docker-tutorial.html)</a></p>
-</li>
-<li>
-<p><a href="https://www.jianshu.com/p/3de740409bcc">Docker的六大优势(https://www.jianshu.com/p/3de740409bcc)</a></p>
-</li>
+<li>pre-clean：执行清理前需要完成的工作</li>
+<li>clean：清理上一次构建生成的工作</li>
+<li>post-clean：执行清理后需要完成的工作</li>
 </ol>
+<ul>
+<li>default生命周期：构建项目，重要的phrase如下。</li>
+</ul>
+<ol>
+<li>validate：验证工程是否正确，所有需要的资源是否可用</li>
+<li>compile：编译项目的源代码</li>
+<li>test：使用合适的单元测试框架来测试已编译的源代码。这些测试不需要已打包和部署。</li>
+<li>package：把已编译的代码打包成可发布的格式，比如jar。</li>
+<li>integration-test：如有需要，将包处理和发布到一个能够集成测试的环境。</li>
+<li>verify：运行所有检查，验证包是否有效且达到质量标准。</li>
+<li>install：把包安装到maven本地仓库，可以被其他工程作为依赖来使用。</li>
+<li>Deploy：在集成或者发布环境下执行，将最终版本的包拷贝到远程的repository，使得其他的开发者或者工程可以共享。</li>
+</ol>
+<ul>
+<li>site生命周期</li>
+</ul>
+<ol>
+<li>pre-site：生成项目站点之前需要完成的工作。</li>
+<li>site：生成项目站点文档。</li>
+<li>post-site：生成项目站点之后需要完成的工作。</li>
+<li>site-deploy：将项目站点发布到服务器。</li>
+</ol>
+<h2 id="maven插件">Maven插件</h2>
+<p><strong>5.1基本概念及使用</strong></p>
+<p>我们知道Maven本质上一个插件框架，它的核心并不执行任何具体的构建任务，所有这些任务都交给插件来完成。例如编译源代码是由maven-compile-plugin完成的。进一步说，每个任务对应了一个插件目标（goal），每个插件会有一个或者多个目标。</p>
+<p>用户可以通过两种方式调用Maven插件目标。第一种方式是将插件目标与生命周期阶段（lifecycle phase）绑定，这样用户在命令行只是输入生命周期阶段而已，例如Maven默认将maven-compiler-plugin的compile目标与compile生命周期阶段绑定，因此命令<strong>mvn compile</strong>实际上是先定位到compile这一生命周期阶段，然后再根据绑定关系调用maven-compiler-plugin的compile目标。第二种方式是直接在命令行指定要执行的插件目标，例如<strong>mvn archetype:generate</strong> 就表示调用maven-archetype-plugin的generate目标，这种带冒号的调用方式与生命周期无关。</p>
+<p><strong>5.2插件分类</strong></p>
+<p>（1）构件插件：在生成过程中执行，并在pom.xml中的<build/>元素进行配置。</p>
+<p>（2）报告插件：在网站生成期间执行，在pom.xml中的<reporting/>元素进行配置。</p>
+<p><strong>5.3常用插件</strong></p>
+<ul>
+<li>maven-project-info-reports-plugin：项目总报告</li>
+<li>cobertura-maven-plugin：代码覆盖率</li>
+<li>maven-jar-plugin：代码打包插件</li>
+<li>maven-resources-plugin：处理资源文件</li>
+<li>maven-compiler-plugin：编译源代码</li>
+<li>maven-surefire-plugin：单元测试</li>
+<li>maven-dependency-plugin：分析项目依赖</li>
+<li>exec-maven-plugin：执行jar包</li>
+<li>maven-assembly-plugin：将依赖打包进jar</li>
+<li>maven-antrun-plugin：让用户在Maven项目中运行Ant任务</li>
+</ul>
 
               </div>
               <div class="post-footer">
@@ -634,7 +620,7 @@ window.addEventListener('load', function() {
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://orange-hou.github.io/post/docker-chu-tan/" title="Docker初识">Docker初识</a>
+      <a href="https://orange-hou.github.io/post/maven-ji-chu-zhi-shi-zheng-li/" title="Maven基础知识整理">Maven基础知识整理</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -643,22 +629,16 @@ window.addEventListener('load', function() {
   </ul>
   <div class="tags">
     
-      <a href="https://orange-hou.github.io/tag/7RLOn7IB_/"># 容器技术</a>
-    
   </div>
   <div class="nav">
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="向量检索初探" href="https://orange-hou.github.io/post/xiang-liang-jian-suo-chu-tan/">向量检索初探</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="向量检索初探" href="https://orange-hou.github.io/post/xiang-liang-jian-suo-chu-tan/">上一篇</a>
+        <a class="nav-pc-next" title="Thrift入门学习" href="https://orange-hou.github.io/post/thrift-chu-tan/">Thrift入门学习</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="Thrift入门学习" href="https://orange-hou.github.io/post/thrift-chu-tan/">上一篇</a>
       
     </div>
     <div class="nav-next">
-      
-        <a class="nav-pc-next" title="Solr缓存整理分析" href="https://orange-hou.github.io/post/solr-huan-cun/">Solr缓存整理分析</a>
-        <a class="nav-mobile-next" title="Solr缓存整理分析" href="https://orange-hou.github.io/post/solr-huan-cun/">下一篇</a>
-        <i class="fa fa-chevron-right"></i>
       
     </div>
   </div>
