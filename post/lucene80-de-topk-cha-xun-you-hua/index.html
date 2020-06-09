@@ -6,7 +6,7 @@
 <meta name="keywords" content="侯橙橙个人博客">
 <meta name="description" content="如水般清澈，如酒般清冽，如茶般清雅">
 <meta name="theme-color" content="#000">
-<title>Docker初识 | 侯橙橙的博客</title>
+<title>Lucene8.0的TopK查询优化 | 侯橙橙的博客</title>
 <link rel="shortcut icon" href="https://orange-hou.github.io//favicon.ico?v=1591703952390">
 <link rel="stylesheet" href="https://orange-hou.github.io//styles/main.css">
 
@@ -25,8 +25,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content="Docker初识" />
-    <meta name="keywords" content="容器技术" />
+    <meta name="description" content="Lucene8.0的TopK查询优化" />
+    <meta name="keywords" content="Lucene/Solr,性能调优" />
   </head>
   <body>
     <div class="head-top-line"></div>
@@ -185,36 +185,11 @@
     <ul class="markdownIt-TOC">
 <li>
 <ul>
-<li><a href="#%E4%B8%80-%E8%99%9A%E6%8B%9F%E5%8C%96%E6%8A%80%E6%9C%AF%E4%B8%8E%E5%AE%B9%E5%99%A8%E5%8C%96%E6%8A%80%E6%9C%AF">一、虚拟化技术与容器化技术</a>
-<ul>
-<li><a href="#%E8%99%9A%E6%8B%9F%E5%8C%96">虚拟化</a></li>
-<li><a href="#%E5%AE%B9%E5%99%A8%E5%8C%96">容器化</a></li>
-<li><a href="#%E8%99%9A%E6%8B%9F%E6%9C%BA-or-%E5%AE%B9%E5%99%A8">虚拟机? OR 容器?</a></li>
-</ul>
-</li>
-<li><a href="#%E4%BA%8C-docker">二、Docker</a>
-<ul>
-<li><a href="#whats-docker">What's Docker?</a></li>
-<li><a href="#why-docker">Why Docker?</a></li>
-<li><a href="#docker%E6%9E%B6%E6%9E%84">Docker架构</a>
-<ul>
-<li><a href="#1docker-daemon">1.Docker daemon</a></li>
-<li><a href="#2docker-client">2.Docker client</a></li>
-<li><a href="#3docker-registry">3.Docker  registry</a></li>
-<li><a href="#4docker-objects">4.Docker objects</a></li>
-</ul>
-</li>
-<li><a href="#docker%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8">Docker的基本使用</a>
-<ul>
-<li><a href="#1docker%E5%AE%89%E8%A3%85">1.Docker安装</a></li>
-<li><a href="#2%E9%85%8D%E7%BD%AE%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F">2.配置镜像加速</a></li>
-<li><a href="#3%E5%88%9B%E5%BB%BAtomcat%E9%95%9C%E5%83%8F">3.创建Tomcat镜像</a></li>
-<li><a href="#4%E8%BF%90%E8%A1%8C%E5%AE%B9%E5%99%A8">4.运行容器</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
+<li><a href="#early-termination">Early Termination</a></li>
+<li><a href="#topk%E4%BC%98%E5%8C%96">TopK优化</a></li>
+<li><a href="#%E4%BC%98%E5%8C%96%E6%95%88%E6%9E%9C">优化效果</a></li>
+<li><a href="#%E5%B1%80%E9%99%90%E6%80%A7">局限性</a></li>
+<li><a href="#%E5%8E%9F%E7%90%86">原理</a></li>
 </ul>
 </li>
 </ul>
@@ -467,8 +442,8 @@ window.addEventListener('load', function() {
               <div class="article-box">
     <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://orange-hou.github.io/post/docker-chu-tan/">
-      Docker初识
+    <a class="post-title-link" href="https://orange-hou.github.io/post/lucene80-de-topk-cha-xun-you-hua/">
+      Lucene8.0的TopK查询优化
     </a>
   </h1>
   <div class="post-meta">
@@ -476,7 +451,7 @@ window.addEventListener('load', function() {
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2020-02-02</span>
+      <span>2019-10-20</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
@@ -485,8 +460,14 @@ window.addEventListener('load', function() {
         <span class="pc-show">分类于</span>
         
           
-            <a href="https://orange-hou.github.io/tag/7RLOn7IB_/">
-              <span>容器技术</span>
+            <a href="https://orange-hou.github.io/tag/wz5-Slwzn/">
+              <span>Lucene/Solr</span>
+            </a>、
+          
+        
+          
+            <a href="https://orange-hou.github.io/tag/FubTHU-L1/">
+              <span>性能调优</span>
             </a>
           
         
@@ -495,135 +476,62 @@ window.addEventListener('load', function() {
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>9分钟</span>
+      <span>3分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>2253<span class="pc-show">字数</span></span>
+      <span>509<span class="pc-show">字数</span></span>
     </span>
   </div>
 </header>
 </div>
               <div class="post-body next-md-body" id="post_body">
-                <p>Em...简单地聊下容器技术与Docker...</p>
-<!-- more -->
-<h2 id="一-虚拟化技术与容器化技术">一、虚拟化技术与容器化技术</h2>
-<h3 id="虚拟化">虚拟化</h3>
-<p>先来简单了解下虚拟化吧，虚拟机大家应该都不会陌生吧，以前用windows主机，想玩Linux的时候，装双系统又嫌麻烦，通常会选择装个VMware或者Virtualbox，然后在上面创建Linux虚拟机。虚拟机便是虚拟化技术的一种实现，来看下VMware官方对虚拟化的解释：</p>
+                <h2 id="early-termination">Early Termination</h2>
+<p>提前终止的意思，其实在很早前，Lucene就有了这个概念，当在查询索引过程中，已经获取了一批比较好的结果，就会提前终止查询，以便获得更快的响应时间。</p>
+<h2 id="topk优化">TopK优化</h2>
+<p>为了适应early-termination（不再访问所有匹配到的doc），Lucene在8.0版本不再精确计算totalHits的值，针对TopDocs结构进行优化，重构了其中的totalHits属性，由long型变为了TotalHits对象类型，包含一个value值及一个Relations枚举类型（用于标识搜索结果总数是否精确），详见<a href="https://issues.apache.org/jira/browse/LUCENE-8430">LUCENE-8430</a></p>
+<pre><code>public final class TotalHits {
+
+  /** How the {@link TotalHits#value} should be interpreted. */
+  public enum Relation {
+    /**
+     * The total hit count is equal to {@link TotalHits#value}.
+     */
+    EQUAL_TO,
+    /**
+     * The total hit count is greater than or equal to {@link TotalHits#value}.
+     */
+    GREATER_THAN_OR_EQUAL_TO
+  }
+
+  /**
+   * The value of the total hit count. Must be interpreted in the context of
+   * {@link #relation}.
+   */
+  public final long value;
+
+  /**
+   * Whether {@link #value} is the exact hit count, in which case
+   * {@link #relation} is equal to {@link Relation#EQUAL_TO}, or a lower bound
+   * of the total hit count, in which case {@link #relation} is equal to
+   * {@link Relation#GREATER_THAN_OR_EQUAL_TO}.
+   */
+  public final Relation relation;
+</code></pre>
+<h2 id="优化效果">优化效果</h2>
+<p>采取TopK优化，性能可以提升到什么程度呢？</p>
+<p>这一点从<a href="http://people.apache.org/~mikemccand/lucenebench/AndHighHigh.html">Lucene夜间基准测试结果</a>就能看出：</p>
 <blockquote>
-<p>虚拟化是为一些组件（例如虚拟应用、服务器、存储和网络）创建基于软件的（或虚拟）表现形式的过程。</p>
+<figure data-type="image" tabindex="1"><img src="https://orange-hou.github.io//post-images/1591703323723.png" alt="" loading="lazy"></figure>
 </blockquote>
-<p>通俗的讲就是通过软件手段将一些硬件资源（如CPU资源、存储资源）“虚拟”出来。</p>
-<p>那么，为什么会有虚拟化技术呢？或者它是解决什么问题的？</p>
-<p>还记得前文提到的Linux虚拟机么，如果没有虚拟化技术，我们在windows主机上想要安装Linux系统基本只能通过装双系统的方式实现，但是装双系统有个缺陷就是同一时刻你只能使用其中一个系统，不能在两个系统间随意切换，而且还需要考虑硬件兼容性问题。如此，虚拟化技术的一个好处就体现出来了：实现程序跨平台运行。</p>
-<p>除此之外，虚拟化还有一个优势在于资源管理。用过VMware的同学都知道我们可以通过VMware为我们创建的Linux虚拟机设置CPU核心数、内存大小等等，通过这些配置我们可以灵活的管控Linux虚拟机所需的资源。</p>
-<p>虚拟化技术在实际场景中有很多种分类，包括平台虚拟化、应用程序虚拟化等等，这不是这片文章的重点，网上资料也很多，这里就不再逐一介绍了（其实是懒了！）。</p>
-<h3 id="容器化">容器化</h3>
-<p>容器化又是什么呢？和虚拟化有关系么？为什么会有容器化呢？</p>
-<p>其实容器化是一种轻量级虚拟化技术，“轻”在哪里？前文提到的虚拟化技术-虚拟机是基于系统为中心实现的，而容器化则是以应用程序为中心的。容器这个词非常形象了，既然是“容器”，那它肯定能装东西喽，既然容器化是以应用程序为中心，那肯定是“装”应用程序了。</p>
-<p>其实容器技术是将一个应用程序及其所需的运行环境都打包起来变成一个沙盒“容器”，并且不同“容器”间互不干扰，独立运行。</p>
-<p>容器化技术不仅部署应用方便、隔离性好，而且在应用运行性能上要远超虚拟机等其他虚拟化实现。</p>
-<p>关于更多容器化的知识可参考<a href="https://www.docker.com/resources/what-container">Docker what-container</a>。</p>
-<h3 id="虚拟机-or-容器">虚拟机? OR 容器?</h3>
-<p>在一篇博客（文末有链接）上看到一张图，可以很直观地看出二者的区别及优劣了：</p>
-<blockquote>
-<figure data-type="image" tabindex="1"><img src="https://orange-hou.github.io//post-images/1584450324678.jpg" alt="" loading="lazy"></figure>
-</blockquote>
-<p>二者最主要的区别其实就是虚拟机中的程序是运行在虚拟机操作系统中的，而容器中的程序则是完全运行在宿主机上的，就像你主机上目前运行的程序一样。</p>
-<h2 id="二-docker">二、Docker</h2>
-<p>Docker这个词我第一次听到应该是大四实习的时候，那个时候给我印象有点深的是它的logo，很cute!! 之后工作中一直没有什么机会接触这块知识，正好最近有一次机会，一起来简单地学习下吧！咱么日常三问开头，What? Why? How?</p>
-<blockquote>
-<figure data-type="image" tabindex="2"><img src="https://orange-hou.github.io//post-images/1584450348006.jpg" alt="" loading="lazy"></figure>
-</blockquote>
-<h3 id="whats-docker">What's Docker?</h3>
-<p>来看看Docker官方对Docker的解释：</p>
-<blockquote>
-<p>Docker is an open platform for developing, shipping, and running applications. Docker enables you to separate your applications from your infrastructure so you can deliver software quickly.</p>
-</blockquote>
-<p>Docker官方将Docker定义为一个开放平台，用于开发、交付以及运行应用程序。上文不是提到了容器化嘛？Docker一般不也被叫做Docker容器么，所以docker其实就是容器化技术的一种实现，我们完全可以通过Docker来部署执行我们的应用程序。</p>
-<h3 id="why-docker">Why Docker?</h3>
-<p>我们来看下Docker有什么特性及优势：</p>
-<ul>
-<li>快速部署：通过Docker容器可快速部署运行你的应用。</li>
-<li>隔离性和安全性：使用Docker可以进行资源隔离，确保每个应用程序只使用分配给它的资源，并且多个Docker容器之间互不影响。</li>
-<li>持续集成和交付：定制应用镜像来实现集成、持续支付、部署。开发人员可以通过<strong>dockerfile</strong>来进行镜像构建，并结合持续集成系统进行集成测试，而运维人员则可以直接在生产环境中快速部署该镜像，甚至结合持续部署系统进行自动部署。</li>
-<li>多平台快速迁移：由于docker确保了执行环境的一致性，使得应用的迁移更加的容易。docker可以在很多平台上运行，无论是物理机、虚拟机、公有云、私有云、甚至是笔记本、其运行结果是一致的。因此用户可以很轻易的将在一个平台上运行的应用，迁移到另一个平台上，而不用担心运行环境的变化导致应用无法正常运行的情况。</li>
-</ul>
-<p>单看这些优势是不是有点懵？我们后面会用Docker简单实操一遍，便于理解它的优势。</p>
-<h3 id="docker架构">Docker架构</h3>
-<p>Docker采用了CS架构，包括如下几个部分：</p>
-<blockquote>
-<figure data-type="image" tabindex="3"><img src="https://orange-hou.github.io//post-images/1584450370073.svg" alt="" loading="lazy"></figure>
-</blockquote>
-<h4 id="1docker-daemon">1.Docker daemon</h4>
-<p>守护进程（dockered），负责处理Client端的请求并管理Docker对象，例如镜像、容器、网络等等。</p>
-<h4 id="2docker-client">2.Docker client</h4>
-<p>Docker客户端，是用户与Docker交互的桥梁，当用户执行docker run之类的命令时，客户端将命令发送至dockered，交由dockered执行。</p>
-<h4 id="3docker-registry">3.Docker  registry</h4>
-<p>Docker注册表，代表Docker镜像存储库，默认注册表是 Docker Hub，支持配置其他注册表。</p>
-<h4 id="4docker-objects">4.Docker objects</h4>
-<ul>
-<li>images：镜像，一个只读的文件系统，包含容器运行时所需要的文件和配置参数。通过镜像来创建container，并且一个镜像可以运行多个container。镜像可以从仓库中下载，也可以用Dockerfile自行创建。</li>
-<li>containers：容器，是images的一个可运行实例，可以使用Docker客户端创建，启动，停止，移动或删除容器。</li>
-<li>repository：仓库，有点类似于上文的registry，就是Docker存放镜像文件的地方，可类比成Maven的仓库。当然Docker也有公有仓库和私有仓库。</li>
-</ul>
-<h3 id="docker的基本使用">Docker的基本使用</h3>
-<p>下文以在Docker中安装运行Tomcat为例介绍下Docker的基本使用方式：</p>
-<h4 id="1docker安装">1.Docker安装</h4>
-<p>注意Docker安装的前提需要操作系统支持虚拟化！</p>
-<p>windows：win7和win8需通过docker toolbox安装，win10系统需开启虚拟化（Hyper-V）后通过<a href="https://docs.docker.com/docker-for-windows/install/">Docker Desktop for Windows</a>安装</p>
-<p>macos：通过<a href="https://docs.docker.com/docker-for-mac/install/">Docker Desktop for Mac</a>安装</p>
-<p>linux：通过<a href="https://docs.docker.com/install/linux/ubuntu/">Docker for Linux</a>安装</p>
-<h4 id="2配置镜像加速">2.配置镜像加速</h4>
-<p>之前提到一个Docker registry，用于存放所有Docker镜像，由于默认配置是部署在国外的Docker Hub，后续拉取镜像十分缓慢，因而我们可以配置个加速器，我们打开Docker的控制面板，以macos上的Docker为例：</p>
-<figure data-type="image" tabindex="4"><img src="https://orange-hou.github.io//post-images/1584450389239.png" alt="" loading="lazy"></figure>
-<p>在Settings中，为Docker Engine配置镜像的registry，上图中配置的阿里云为我自己分配的镜像地址。</p>
-<p>配置完成后，可在命令行终端输入 docker info确认是否配置成功：</p>
-<figure data-type="image" tabindex="5"><img src="https://orange-hou.github.io//post-images/1584450417103.jpg" alt="" loading="lazy"></figure>
-<h4 id="3创建tomcat镜像">3.创建Tomcat镜像</h4>
-<p>从<a href="https://hub.docker.com/">Docker Hub</a>上搜索Tomcat：</p>
-<figure data-type="image" tabindex="6"><img src="https://orange-hou.github.io//post-images/1584450430655.jpg" alt="" loading="lazy"></figure>
-<p>从Tags中可以看到多个发布的镜像版本，我们直接执行docker pull tomcat，后面不加版本号，默认会拉取最新版本：</p>
-<figure data-type="image" tabindex="7"><img src="https://orange-hou.github.io//post-images/1584450439589.jpg" alt="" loading="lazy"></figure>
-<p>拉取完成后，通过命令docker images | grep tomcat查找Tomcat镜像：</p>
-<figure data-type="image" tabindex="8"><img src="https://orange-hou.github.io//post-images/1584450457205.jpg" alt="" loading="lazy"></figure>
-<p>注：还有一种通过Dockerfile构建Tomcat镜像的方式，相对比较麻烦，可以参考<a href="https://www.runoob.com/docker/docker-install-tomcat.html">菜鸟教程 Docker安装Tomcat</a>。</p>
-<h4 id="4运行容器">4.运行容器</h4>
-<p>有了镜像之后，我们可以直接通过如下命令创建容器并运行：</p>
-<p>docker run --name tomcat -p 8080:8080 -v /$PWD/test:/usr/local/tomcat/webapps/test -d tomcat</p>
-<ul>
-<li>--name：指定容器name</li>
-<li>-p：Docker容器端口和宿主机端口映射</li>
-<li>-v：将主机中当前目录下的 test 挂载到容器的 /test</li>
-<li>-d：指定镜像</li>
-</ul>
-<figure data-type="image" tabindex="9"><img src="https://orange-hou.github.io//post-images/1584450473012.jpg" alt="" loading="lazy"></figure>
-<p>执行成功后，会返回一个容器ID，我们可以通过容器ID或指定的name查看启动日志：</p>
-<p>docker logs da3888776b2cd5dc6ed26fb64c9f5c8a9a8002b5225f840a5e7beef424b75c04</p>
-<figure data-type="image" tabindex="10"><img src="https://orange-hou.github.io//post-images/1584450483122.jpg" alt="" loading="lazy"></figure>
-<p>执行docker ps 命令可查看目前运行中的容器：</p>
-<figure data-type="image" tabindex="11"><img src="https://orange-hou.github.io//post-images/1584450490355.jpg" alt="" loading="lazy"></figure>
-<p>我们还可以通过Docker控制面板，直接对创建的Docker容器做一些可视化操作：</p>
-<figure data-type="image" tabindex="12"><img src="https://orange-hou.github.io//post-images/1584450497339.jpg" alt="" loading="lazy"></figure>
-<h2 id="参考资料">参考资料</h2>
-<ol>
-<li>
-<p><a href="https://www.vmware.com/cn/solutions/virtualization.html">什么是虚拟化技术和虚拟机 VMware(https://www.vmware.com/cn/solutions/virtualization.html)</a></p>
-</li>
-<li>
-<p><a href="https://docs.docker.com/">Docker官方文档(https://docs.docker.com/)</a></p>
-</li>
-<li>
-<p><a href="https://blog.csdn.net/cpongo3/article/details/93623781">浅谈虚拟化和容器技术(https://blog.csdn.net/cpongo3/article/details/93623781)</a></p>
-</li>
-<li>
-<p><a href="https://www.runoob.com/docker/docker-tutorial.html">菜鸟教程 Docker(https://www.runoob.com/docker/docker-tutorial.html)</a></p>
-</li>
-<li>
-<p><a href="https://www.jianshu.com/p/3de740409bcc">Docker的六大优势(https://www.jianshu.com/p/3de740409bcc)</a></p>
-</li>
-</ol>
+<p>CJ表示LUCENE-8060这个issues，8060就是实现了TopK优化。可以看到boolean查询有了一倍多的性能提升。</p>
+<h2 id="局限性">局限性</h2>
+<p>TopK优化后性能提升虽然巨大，但是它只能支持最基本的query和filter，适用于一些简单的搜索场景，比如不需要知道精确的搜索结果总数并且不需要自定义打分，另外它只能使用Lucene默认的顶端收集器。</p>
+<h2 id="原理">原理</h2>
+<p>那么Lucene为什么能进行TopK优化呢？这涉及到一个BMW (Block-Max WAND)算法（基于剪枝算法）。简单地讲就是利用块最大得分机制替换全局最大得分，当块最大得分不具备竞争力的时候，可以直接跳过整个块。</p>
+<figure data-type="image" tabindex="2"><img src="https://orange-hou.github.io//post-images/1591703345182.png" alt="" loading="lazy"></figure>
+<p>感兴趣的可以直接看下论文(<a href="http://engineering.nyu.edu/~suel/papers/bmw.pdf">http://engineering.nyu.edu/~suel/papers/bmw.pdf)</a></p>
 
               </div>
               <div class="post-footer">
@@ -634,7 +542,7 @@ window.addEventListener('load', function() {
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://orange-hou.github.io/post/docker-chu-tan/" title="Docker初识">Docker初识</a>
+      <a href="https://orange-hou.github.io/post/lucene80-de-topk-cha-xun-you-hua/" title="Lucene8.0的TopK查询优化">Lucene8.0的TopK查询优化</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -643,21 +551,23 @@ window.addEventListener('load', function() {
   </ul>
   <div class="tags">
     
-      <a href="https://orange-hou.github.io/tag/7RLOn7IB_/"># 容器技术</a>
+      <a href="https://orange-hou.github.io/tag/wz5-Slwzn/"># Lucene/Solr</a>
+    
+      <a href="https://orange-hou.github.io/tag/FubTHU-L1/"># 性能调优</a>
     
   </div>
   <div class="nav">
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="向量检索初探" href="https://orange-hou.github.io/post/xiang-liang-jian-suo-chu-tan/">向量检索初探</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="向量检索初探" href="https://orange-hou.github.io/post/xiang-liang-jian-suo-chu-tan/">上一篇</a>
+        <a class="nav-pc-next" title="Solr缓存整理分析" href="https://orange-hou.github.io/post/solr-huan-cun/">Solr缓存整理分析</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="Solr缓存整理分析" href="https://orange-hou.github.io/post/solr-huan-cun/">上一篇</a>
       
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="Solr缓存整理分析" href="https://orange-hou.github.io/post/solr-huan-cun/">Solr缓存整理分析</a>
-        <a class="nav-mobile-next" title="Solr缓存整理分析" href="https://orange-hou.github.io/post/solr-huan-cun/">下一篇</a>
+        <a class="nav-pc-next" title="Lucene词典结构之FST" href="https://orange-hou.github.io/post/lucene-ci-dian-zhi-fst/">Lucene词典结构之FST</a>
+        <a class="nav-mobile-next" title="Lucene词典结构之FST" href="https://orange-hou.github.io/post/lucene-ci-dian-zhi-fst/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

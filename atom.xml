@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://orange-hou.github.io/</id>
     <title>侯橙橙的博客</title>
-    <updated>2020-06-08T15:13:25.207Z</updated>
+    <updated>2020-06-09T11:59:16.846Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://orange-hou.github.io/"/>
     <link rel="self" href="https://orange-hou.github.io/atom.xml"/>
@@ -44,6 +44,13 @@
 ]]></content>
     </entry>
     <entry>
+        <title type="html"><![CDATA[Lucene8.0的TopK查询优化]]></title>
+        <id>https://orange-hou.github.io/post/lucene80-de-topk-cha-xun-you-hua/</id>
+        <link href="https://orange-hou.github.io/post/lucene80-de-topk-cha-xun-you-hua/">
+        </link>
+        <updated>2019-10-20T11:47:59.000Z</updated>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Lucene词典结构之FST]]></title>
         <id>https://orange-hou.github.io/post/lucene-ci-dian-zhi-fst/</id>
         <link href="https://orange-hou.github.io/post/lucene-ci-dian-zhi-fst/">
@@ -58,6 +65,13 @@
         <updated>2019-08-03T11:50:30.000Z</updated>
     </entry>
     <entry>
+        <title type="html"><![CDATA[Lucene DocValues浅析]]></title>
+        <id>https://orange-hou.github.io/post/lucene-docvalues-qian-xi/</id>
+        <link href="https://orange-hou.github.io/post/lucene-docvalues-qian-xi/">
+        </link>
+        <updated>2019-07-07T11:53:22.000Z</updated>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[谈谈常用的负载均衡策略]]></title>
         <id>https://orange-hou.github.io/post/tan-tan-chang-yong-de-fu-zai-jun-heng-ce-lue/</id>
         <link href="https://orange-hou.github.io/post/tan-tan-chang-yong-de-fu-zai-jun-heng-ce-lue/">
@@ -66,6 +80,17 @@
         <summary type="html"><![CDATA[<p>由于项目中用到了负载均衡策略，因而对几种常用的负载均衡策略做一个总结</p>
 ]]></summary>
         <content type="html"><![CDATA[<p>由于项目中用到了负载均衡策略，因而对几种常用的负载均衡策略做一个总结</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Solr VS ES]]></title>
+        <id>https://orange-hou.github.io/post/solr-vs-es/</id>
+        <link href="https://orange-hou.github.io/post/solr-vs-es/">
+        </link>
+        <updated>2019-02-10T11:50:40.000Z</updated>
+        <summary type="html"><![CDATA[<p>最近看到一个对比Solr与ES的网站，觉得很不错，因而做一个整理。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>最近看到一个对比Solr与ES的网站，觉得很不错，因而做一个整理。</p>
 ]]></content>
     </entry>
     <entry>
@@ -78,12 +103,5 @@
 ]]></summary>
         <content type="html"><![CDATA[<p>在工作中用到了RPC通信框架Thrift，对Thrift基础知识做一个简单的整理：</p>
 ]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Maven基础知识整理]]></title>
-        <id>https://orange-hou.github.io/post/maven-ji-chu-zhi-shi-zheng-li/</id>
-        <link href="https://orange-hou.github.io/post/maven-ji-chu-zhi-shi-zheng-li/">
-        </link>
-        <updated>2018-05-13T08:32:53.000Z</updated>
     </entry>
 </feed>
