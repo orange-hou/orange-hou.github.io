@@ -6,8 +6,8 @@
 <meta name="keywords" content="侯橙橙个人博客">
 <meta name="description" content="如水般清澈，如酒般清冽，如茶般清雅">
 <meta name="theme-color" content="#000">
-<title>Lucene索引文件 | 侯橙橙的博客</title>
-<link rel="shortcut icon" href="https://orange-hou.github.io//favicon.ico?v=1591703952390">
+<title>Lucene索引文件结构 | 侯橙橙的博客</title>
+<link rel="shortcut icon" href="https://orange-hou.github.io//favicon.ico?v=1591708344792">
 <link rel="stylesheet" href="https://orange-hou.github.io//styles/main.css">
 
 <link rel="stylesheet" href="/media/css/mist.css">
@@ -25,7 +25,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-    <meta name="description" content="Lucene索引文件" />
+    <meta name="description" content="Lucene索引文件结构" />
     <meta name="keywords" content="Lucene/Solr" />
   </head>
   <body>
@@ -185,7 +185,27 @@
     <ul class="markdownIt-TOC">
 <li>
 <ul>
-<li><a href="#%E4%B8%80">一、</a></li>
+<li><a href="#%E4%B8%80-%E7%B4%A2%E5%BC%95%E6%96%87%E4%BB%B6%E6%A6%82%E8%A7%88">一、索引文件概览</a></li>
+<li><a href="#%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95">倒排索引</a>
+<ul>
+<li><a href="#%E8%AF%8D%E5%85%B8">词典</a></li>
+<li><a href="#%E5%80%92%E6%8E%92%E8%A1%A8">倒排表</a>
+<ul>
+<li><a href="#vint-blocks">VInt Blocks</a></li>
+<li><a href="#packed-blocks">Packed Blocks</a></li>
+<li><a href="#doc">.doc</a></li>
+<li><a href="#pos">.pos</a></li>
+<li><a href="#pay">.pay</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E6%AD%A3%E5%90%91%E7%B4%A2%E5%BC%95">正向索引</a>
+<ul>
+<li><a href="#%E5%85%B6%E4%BB%96%E7%B4%A2%E5%BC%95%E6%96%87%E4%BB%B6">其他索引文件</a></li>
+</ul>
+</li>
+<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
 </ul>
 </li>
 </ul>
@@ -439,7 +459,7 @@ window.addEventListener('load', function() {
     <header class="post-header">
   <h1 class="post-title">
     <a class="post-title-link" href="https://orange-hou.github.io/post/lucene-suo-yin-wen-jian/">
-      Lucene索引文件
+      Lucene索引文件结构
     </a>
   </h1>
   <div class="post-meta">
@@ -466,18 +486,152 @@ window.addEventListener('load', function() {
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
+      <span>10分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>1<span class="pc-show">字数</span></span>
+      <span>2438<span class="pc-show">字数</span></span>
     </span>
   </div>
 </header>
 </div>
               <div class="post-body next-md-body" id="post_body">
-                <h2 id="一">一、</h2>
+                <p>用过Lucene的同学有没有了解过Lucene的底层索引文件呢，是不是对各种类型的索引文件很迷惑呢，我们一起来学习下索引文件结构（基于8.1.1版本）：</p>
+<h2 id="一-索引文件概览">一、索引文件概览</h2>
+<p>我们都知道Lucene的索引文件是分段存储的，每个索引段都能独立提供搜索服务，为什么分段？</p>
+<p>分段主要是为了读写分离，每个Segment在生成后，里面存放的Doc永远不可被修改（只可以被逻辑删除），新加的Doc会被加入内存缓冲区，达到一定量级才会flush到磁盘上，这样完全避免了写对读的影响，使得读能够达到很高的吞吐量。</p>
+<p>在Lucene的Java Doc上有这样一张表，总结了当前版本Lucene各个索引文件的含义：</p>
+<figure data-type="image" tabindex="1"><img src="https://orange-hou.github.io//post-images/1591706164263.jpg" alt="" loading="lazy"></figure>
+<p>我们先挑选一些比较核心的索引文件简单学习一下，后面再简单介绍下其他文件的作用。我这里分为了两类，正向索引和倒排索引：</p>
+<h2 id="倒排索引">倒排索引</h2>
+<p>关于倒排索引的基本概念我就不再详细介绍了，如果你还不了解倒排索引的话，请看这篇博客<a href="https://www.cnblogs.com/tonychai/p/4555272.html">全文检索的基本原理</a>，这里简单类比下，我们小时候肯定用过新华字典吧，在查某个字时是不是通过拼音和部首去查的呢，这样速度最快，其实这两种方式就用到了倒排索引的思想，关于Lucene中的倒排索引，请看下面这张图，非常形象：</p>
+<figure data-type="image" tabindex="2"><img src="https://orange-hou.github.io//post-images/1591706182621.png" alt="" loading="lazy"></figure>
+<p>如上图，整个倒排由词典和倒排表两部分，我们可以用一个简单的数据结构来描述这种结构：Map&lt;String，List<Integer>&gt;，Map中的key就是Term（词项），key的集合就是Dictionary（词典），每个key对应value是DocIdSet（DocId集合），所有Do的DocIdSet叫做Posting（倒排表）。</p>
+<p>来详细看下倒排索引中的这两个重要组成部分：</p>
+<h3 id="词典">词典</h3>
+<p>在Lucene中，词典由以下两个索引文件组成：</p>
+<ul>
+<li>.tim：TermDictionary即词典，包括每个字段上的词以及每个词的静态信息（如文档数docFreq），以及该词指向倒排表中的词频、位置、PayLoad及跳跃表的指针。</li>
+<li>.tip：TermIndex，词典的索引，用于随机访问词典。</li>
+</ul>
+<p>词典涉及一个重要的类：<strong>BlockTreeTermsWriter</strong>，来看下它对.tim文件的描述：</p>
+<blockquote>
+<p>The .tim file contains the list of terms in each field along with per-term statistics (such as docfreq) and per-term metadata (typically pointers to the postings list for that term in the inverted index).</p>
+<p>The .tim is arranged in blocks: with blocks containing a variable number of entries (by default 25-48), where each entry is either a term or a reference to a sub-block.</p>
+</blockquote>
+<p>从中，我们知道词典是按块（Block）排列的，并且每个块的大小介于25-48之间</p>
+<p>关于TermIndex和TermDictionary中的详细内容及它们之间的关系，请看下面这张图：</p>
+<figure data-type="image" tabindex="3"><img src="https://orange-hou.github.io//post-images/1591706200794.jpg" alt="" loading="lazy"></figure>
+<p>我们来逐步剖析一下上面这张图：</p>
+<p>其中，TermIndex由多个FSTIndex构成，Segment上的每个字段都有一个FSTIndex，FSTIndex采用的是一种叫做FST的数据结构，FST是一种类似于Trie树结构，其叶子节点指向了TermDictionary中的NodeBlock，TermIndex通过FST快速定位到TermDictionary中的Block。关于FST，上图只是简单地将它描述成了Trie树，其实现比描述的要复杂，另写博客单独分析其原理。另外需要注意的是，FST是通过TermDictionary的每个Block的前缀构成，通过FST只能找到这个Block在.tim上的File Pointer，无法直接找到Terms。Block上的每个Term实际上是不记录共同前缀的。所以FST的作用是用来快速试错（类似于<strong>BloomFilter</strong>作用），以及快速定位Block的位置。</p>
+<p>接着，我们回到.tim文件，我们已经知道它是按NodeBlock存储的，NodeBlock分为了outerNode和innerNode两种模式：</p>
+<blockquote>
+<ul>
+<li>NodeBlock --&gt; (OuterNode | InnerNode)</li>
+<li>OuterNode --&gt; EntryCount, SuffixLength, ByteSuffixLength, StatsLength, &lt; TermStats &gt;EntryCount, MetaLength, &lt;<em>TermMetadata</em>&gt;EntryCount</li>
+<li>InnerNode --&gt; EntryCount, SuffixLength[,Sub?], ByteSuffixLength, StatsLength, &lt; TermStats ? &gt;EntryCount, MetaLength, &lt;<em>TermMetadata ?</em> &gt;EntryCount</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>NodeBlock从构建逻辑上来讲是它是树型结构，所以它由叶子节点和非叶子节点两种节点组成。叶子节点就叫OutterNode，非叶子节点就叫InnerNode。一个Block可能含有一堆的Term(PendingTerm)和PendingBlock(当它是非叶子节点时)，实际上PendingBlock也是不可能出现在叶子节点上的。如果是PendingBlock，那么这个Entry只记录两个信息：后缀(这个Block的共同后缀)以及子Block的文件指针，此时就不必再记上所说的统计信息和postings信息了</p>
+</blockquote>
+<p>关于上图中的其他组成部分，感兴趣的同学可以进一步阅读<strong>BlockTreeTermsWriter</strong>类。</p>
+<h3 id="倒排表">倒排表</h3>
+<ul>
+<li>.doc：存储文档集合，必不可少</li>
+<li>.pos：存储term在文档中出现的位置</li>
+<li>.pay：存储每个term额外的元数据信息</li>
+</ul>
+<p>我们先来看下Posting涉及的两个编码格式：</p>
+<h4 id="vint-blocks">VInt Blocks</h4>
+<blockquote>
+<p>VIntBlock是能够存储复合数据类型的数据结构，主要通过变长整型（Variable Integer）编码达到压缩的目的。此外VIntBlock还能够存储<code>byte[]</code>，比如.pay用VIntBlock存储了payloads数据等。</p>
+<p>值得一提的是，VIntBlock可以存储变长数据结构，如.doc用它存储DocID和TermFreq时，由于在特定条件下(TermFreq=1)，Lucene会省略TermFreq以提高空间占用率。Lucene用一个VInt来表示DocID，VInt则用每个Byte左边第一个Bit来表示是否需要读取顺续到下个Byte。也就是说一个VInt有效位是<code>28bit</code>，这就说明VInt头部是有特殊含义的，因此Lucene只能在VInt最右边的一个bit下功夫。让VInt的右边第一Bit来表示是否有下个数据。</p>
+</blockquote>
+<h4 id="packed-blocks">Packed Blocks</h4>
+<p>在Lucene 4.0引入，带来向量化优化。</p>
+<blockquote>
+<p>PackedBlock只能存储单一整数(Integer/Long)数组结构。这里主要介绍PackedInts：它将一个int[]打包成一个Block。PackedBlock只能存储固定长度的数组（Lucene规定其长度为128个元素），它的压缩方式是将每个元素截断为一个预算的长度（length，单位是bit），以达到压缩的目的。所以当长度length不是8的倍数时，会出现一个byte被多个元素占用的情形。</p>
+<p>PackedBlock需要把整个int[]的所有条目指定长度编码，所以PackedBlock只能选择int[]最大的数来计算长度，否则会让大数失真。反过来，PackedBlock都选择64位，则会浪费空间，不能达到压缩的目的。</p>
+</blockquote>
+<h4 id="doc">.doc</h4>
+<p>每个Term都对应着.doc中成对的TermFreqs和SkipData：</p>
+<blockquote>
+<figure data-type="image" tabindex="4"><img src="https://orange-hou.github.io//post-images/1591706226341.jpg" alt="" loading="lazy"></figure>
+</blockquote>
+<ol>
+<li>
+<p>TermsFreqs：存储最核心的DocId及TermFreqs，分别表示文档号和对应的词频（Term在该文档中出现的次数）。TermFreqs采用Packed Blocks和VInt Blocks混合存储，于PackedBlock是定长的，当前Lucene默认是128个<code>Integers</code>。所以在不满128个值的时候，Lucene采用VIntBlocks结构存储。需要注意的是当用Packed Blocks结构时，DocID和TermFreq是分开存储的，各自将128个值写入到一个Block。</p>
+</li>
+<li>
+<p>SkipData：跳表结构。Lucene在索引时构建了SkipList，在Segment中每个Term都有自己唯一的Postings，每个Postings都有需要构建一个SkipList，这三者是一一对应的。所以画出来结构图如下：</p>
+<blockquote>
+<figure data-type="image" tabindex="5"><img src="https://orange-hou.github.io//post-images/1591706236165.jpg" alt="" loading="lazy"></figure>
+</blockquote>
+</li>
+</ol>
+<h4 id="pos">.pos</h4>
+<p>存储所有Terms出现文档中的位置信息：</p>
+<blockquote>
+<figure data-type="image" tabindex="6"><img src="https://orange-hou.github.io//post-images/1591706245430.jpg" alt="" loading="lazy"></figure>
+</blockquote>
+<blockquote>
+<p>Lucene把同一个Term的所有position信息存储在同一个TermPositions上，并没有逻辑或者物理上的划分。将在一个文档里出现的所有位置信息，按出现的先后顺序依次写入。 关键在于，position与TermFreq并不是在一维度上，TermFreq的数值就是position的个数。也就是说，通过.pos文件无法知道每个position的具体含义，PostingsReader通过.doc文件的DocID和TermFreq信息才能算出Postition的是在哪个文档上的哪个位置。</p>
+</blockquote>
+<h4 id="pay">.pay</h4>
+<blockquote>
+<p>Payloads的信息需要用byte数组存储，所以在TermPayloads并不能用PackedBlock结构来存储。TermOffsets由2个int来表示Offset的开始位置和长度，可以将它们拆成两个等size的int[]，因此可以用PackedBlock存储</p>
+</blockquote>
+<blockquote>
+<figure data-type="image" tabindex="7"><img src="https://orange-hou.github.io//post-images/1591706255021.jpg" alt="" loading="lazy"></figure>
+</blockquote>
+<h2 id="正向索引">正向索引</h2>
+<p>正向索引主要存储了docId到doc的映射关系。一般用于字段排序、Facet等场景。</p>
+<ul>
+<li>
+<p>行式存储</p>
+<ul>
+<li>
+<p>.fnm：主要存储各列类型、列名、存储方式等信息</p>
+</li>
+<li>
+<p>.fdt：按chrunk存储文档值，每个chrunk为一个块，一个chunk包含了该chunk起始文档、多少个文档、压缩后的文档内容</p>
+</li>
+<li>
+<p>.fdx：跃表存储文档号索引，倒排表存放的时文档号，需要通过fdx才能快速定位到文档位置即chunk位置</p>
+</li>
+</ul>
+</li>
+<li>
+<p>列式存储</p>
+<ul>
+<li>.dvd，.dvm:DocValues存储</li>
+</ul>
+</li>
+</ul>
+<p>关于DocValues，值得我们深入学习一下，但是内容比较多，以后再分析。</p>
+<h3 id="其他索引文件">其他索引文件</h3>
+<p>简单了解下其他文件中存了哪些东西：</p>
+<ul>
+<li>segments_N：提交点信息（commit），N是一个36进制表示的值</li>
+<li>write.lock：文件锁，避免多个writer同时写；默认和索引文件一个目录</li>
+<li>.si：segment元数据信息，指明这个segment包含哪些文件</li>
+<li>.cfs，.cfe：复合索引，如果启用compound功能，会压缩索引到2个文件内</li>
+<li>.nvd，.nvm：.nvm保存加权因子元数据；.nvd存储加权数据</li>
+<li>.tvx：指向tvd的offset</li>
+<li>.tvd：存储term vector信息</li>
+<li>.liv：存储存活的文档列表。位图形式</li>
+<li>.dii，.dim：多维数据，地理位置等信息，用于处理数值型的查询</li>
+</ul>
+<h2 id="参考资料">参考资料</h2>
+<ol>
+<li><a href="https://lucene.apache.org/core/8_1_1/core/index.html">Lucene官方Java Doc(https://lucene.apache.org/core/8_1_1/core/index.html)</a></li>
+<li><a href="http://www.nosqlnotes.com/technotes/searchengine/lucene-invertedindex/">Lucene倒排索引原理探秘(1)(http://www.nosqlnotes.com/technotes/searchengine/lucene-invertedindex/)</a></li>
+<li><a href="http://www.shenyanchao.cn/blog/2018/12/04/lucene-index-files/">Lucene索引过程&amp;索引文件格式详解(http://www.shenyanchao.cn/blog/2018/12/04/lucene-index-files/)</a></li>
+<li><a href="https://www.amazingkoala.com.cn/Lucene/suoyinwenjian/2019/0401/43.html">tim&amp;&amp;tip文件(https://www.amazingkoala.com.cn/Lucene/suoyinwenjian/2019/0401/43.html)</a></li>
+<li><a href="http://www.nosqlnotes.com/technotes/searchengine/lucene-invertedindex-2/">Lucene倒排索引原理探秘(2)(http://www.nosqlnotes.com/technotes/searchengine/lucene-invertedindex-2/)</a></li>
+</ol>
 
               </div>
               <div class="post-footer">
@@ -488,7 +642,7 @@ window.addEventListener('load', function() {
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://orange-hou.github.io/post/lucene-suo-yin-wen-jian/" title="Lucene索引文件">Lucene索引文件</a>
+      <a href="https://orange-hou.github.io/post/lucene-suo-yin-wen-jian/" title="Lucene索引文件结构">Lucene索引文件结构</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -510,8 +664,8 @@ window.addEventListener('load', function() {
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="Lucene DocValues浅析" href="https://orange-hou.github.io/post/lucene-docvalues-qian-xi/">Lucene DocValues浅析</a>
-        <a class="nav-mobile-next" title="Lucene DocValues浅析" href="https://orange-hou.github.io/post/lucene-docvalues-qian-xi/">下一篇</a>
+        <a class="nav-pc-next" title="谈谈常用的负载均衡策略" href="https://orange-hou.github.io/post/tan-tan-chang-yong-de-fu-zai-jun-heng-ce-lue/">谈谈常用的负载均衡策略</a>
+        <a class="nav-mobile-next" title="谈谈常用的负载均衡策略" href="https://orange-hou.github.io/post/tan-tan-chang-yong-de-fu-zai-jun-heng-ce-lue/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
