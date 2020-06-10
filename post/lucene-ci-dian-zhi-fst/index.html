@@ -7,7 +7,7 @@
 <meta name="description" content="如水般清澈，如酒般清冽，如茶般清雅">
 <meta name="theme-color" content="#000">
 <title>Lucene词典结构之FST | 侯橙橙的博客</title>
-<link rel="shortcut icon" href="https://orange-hou.github.io//favicon.ico?v=1591708344792">
+<link rel="shortcut icon" href="https://orange-hou.github.io//favicon.ico?v=1591769357802">
 <link rel="stylesheet" href="https://orange-hou.github.io//styles/main.css">
 
 <link rel="stylesheet" href="/media/css/mist.css">
@@ -183,12 +183,13 @@
             <div class="toc-box right-motion">
   <div class="toc-wrapper auto-number auto" id="toc_wrapper">
     <ul class="markdownIt-TOC">
-<li>
+<li><a href="#lucene%E7%B4%A2%E5%BC%95%E8%AF%8D%E5%85%B8%E7%BB%93%E6%9E%84%E4%B9%8Bfst">Lucene索引词典结构之FST</a>
 <ul>
 <li><a href="#%E5%B8%B8%E7%94%A8%E8%AF%8D%E5%85%B8%E7%BB%93%E6%9E%84">常用词典结构</a></li>
 <li><a href="#%E8%B7%B3%E8%B7%83%E8%A1%A8">跳跃表</a></li>
 <li><a href="#fsa">FSA</a></li>
 <li><a href="#fst">FST</a></li>
+<li><a href="#fst%E6%9E%84%E5%BB%BA">FST构建</a></li>
 <li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
 </ul>
 </li>
@@ -470,38 +471,72 @@ window.addEventListener('load', function() {
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>3分钟</span>
+      <span>6分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>603<span class="pc-show">字数</span></span>
+      <span>1365<span class="pc-show">字数</span></span>
     </span>
   </div>
 </header>
 </div>
               <div class="post-body next-md-body" id="post_body">
-                <p>我们之前已经了解到了Lucene倒排索引中的词典，那么词典在Lucene中又是怎么存储的呢？</p>
+                <h1 id="lucene索引词典结构之fst">Lucene索引词典结构之FST</h1>
+<p>我们之前已经了解到了Lucene倒排索引中的词典，那么词典在Lucene中又是怎么存储的呢？</p>
 <!-- more -->
 <h2 id="常用词典结构">常用词典结构</h2>
 <p>试想一下，如果让我们设计一种词典存储结构，你会选用哪种数据结构来实现呢？其实我第一反应想到的是HashMap，查找时间复杂度为O(1)，性能不要太好，但是，搜索本来就耗内存，再来一个这么大的HashMap来存放词典，那还怎么玩？来看下Lucene是用什么结构存储字典：</p>
 <h2 id="跳跃表">跳跃表</h2>
 <p>Lucene在3.0之前使用跳跃表作为词典结构：</p>
 <blockquote>
-<figure data-type="image" tabindex="1"><img src="https://orange-hou.github.io//post-images/1591708253924.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="1"><img src="https://orange-hou.github.io//post-images/1591769200458.png" alt="" loading="lazy"></figure>
 </blockquote>
-<p>跳表的核心思想就是二分查找，其实就是在底层有序链表的基础上增加了多级索引，从最顶层索引开始依次往下查找，极大地缩短了普通链表的查找时间。</p>
+<p>跳表的核心思想就是二分查找，其实就是在有序链表的基础上增加了多级索引，从最顶层索引开始依次往下查找，极大地缩短了普通链表的查找时间。</p>
 <p>Lucene在3.0之后就采用了更为优秀的FST替换了跳表：</p>
 <h2 id="fsa">FSA</h2>
-<p>FSA(Deterministric acyclic finite state acceptor，确定无环有限状态接收机) ，类似于实现一个有序的set。</p>
+<p>FST是一种类似TRIE树的结构，用FSM作为数据结构。</p>
+<blockquote>
+<p><strong>FSM(Finite State Machines)有限状态机</strong>: 表示有限个状态（State）集合以及这些状态之间<strong>转移</strong>和动作的数学模型。其中一个状态被标记为<strong>开始状态</strong>，0个或更多的状态被标记为<strong>final状态</strong>。</p>
+</blockquote>
+<p>我们可以使用FSM来表示处理流程，如下图的《小猫咪的一天》：</p>
+<blockquote>
+<figure data-type="image" tabindex="2"><img src="https://orange-hou.github.io//post-images/1591769228355.png" alt="" loading="lazy"></figure>
+</blockquote>
+<p>如图所示，图中所有节点代表了<strong>状态</strong>，如睡觉、吃饭等等，连线代表了状态的<strong>转移</strong>。小猫不能同时处于两个状态，并且从一个状态转移到另一个状态只有一个输入（一条连线）。</p>
+<p>知道了FSM，我们再来看下它的升级版本FSA。</p>
+<blockquote>
+<p>FSA(Deterministric acyclic finite state acceptor，确定无环有限状态接收机) ，类似于实现一个有序的集合。</p>
 <p>FSA是一个FSM(有限状态机)的一种，特性如下:</p>
 <ul>
 <li>确定：意味着指定任何一个状态，只可能最多有一个转移可以访问到。</li>
 <li>无环： 不可能重复遍历同一个状态</li>
 <li>接收机：有限状态机只“接受”特定的输入序列，并终止于final状态。</li>
 </ul>
-<p>分别输入author、actor、doctor，用FSA来表示：</p>
-<figure data-type="image" tabindex="2"><img src="https://orange-hou.github.io//post-images/1591708264501.jpg" alt="" loading="lazy"></figure>
+</blockquote>
+<p>来学习下FSA如何表示一个有序集合：</p>
+<p>假设集合中只有一个元素“you”，用FSA表示成如下：</p>
+<figure data-type="image" tabindex="3"><img src="https://orange-hou.github.io//post-images/1591769255630.png" alt="" loading="lazy"></figure>
+<p>0状态代表开始，3状态代表结束，依次输入y、o、u，完成状态的转移。</p>
+<p>此时如果在FSA中查找&quot;yoy&quot;，继续依次输入y、o、y，在状态2的时候发现转移不了；同样，如果查找“yo”，在状态2的时候没有输入了，但是状态不是最终结束状态，所以还是查找不到。</p>
+<p>我们在往集合中添加一个元素&quot;she&quot;，这时候FSA就变成了这样：</p>
+<figure data-type="image" tabindex="4"><img src="https://orange-hou.github.io//post-images/1591769263063.png" alt="" loading="lazy"></figure>
+<p>此时，多了4和5两个状态，状态0就可以通过输入&quot;s&quot;转移到状态4。并且&quot;she&quot;和“you”共享了一个终止状态，可以节省空间。</p>
+<p>我们来看下复杂点的，分别输入author、actor、doctor，用FSA来表示：</p>
+<figure data-type="image" tabindex="5"><img src="https://orange-hou.github.io//post-images/1591769273804.jpg" alt="" loading="lazy"></figure>
+<p>它们共享了一个后缀&quot;or&quot;。</p>
+<p>那么如何遍历FSA呢？</p>
+<p>还是以上图为例，遍历算法如下：</p>
+<ul>
+<li>初始状态0，key=&quot; &quot;</li>
+<li>-&gt;1，key=&quot; a&quot;</li>
+<li>-&gt;2，key=&quot; au&quot;</li>
+<li>-&gt;3，key=&quot; aut&quot;</li>
+<li>-&gt;4，key=&quot; auth&quot;</li>
+<li>-&gt;5，key=&quot; autho&quot;</li>
+<li>-&gt;6，key=&quot; author&quot;。结束状态，得到author</li>
+</ul>
+<p>其实就是从开始状态出发，一直转移到结束状态。</p>
 <h2 id="fst">FST</h2>
 <blockquote>
 <p>FST是也一个有限状态机（FSM）,具有这样的特性：</p>
@@ -511,14 +546,36 @@ window.addEventListener('load', function() {
 <li>transducer：接收特定的序列，终止于final状态，同时会<strong>输出一个值</strong>。</li>
 </ul>
 </blockquote>
-<p>知道了FSA的构建之后，FST只需要增加一个output，类似于map的键值对结构，每个key跟着一个value。</p>
+<p>了解了FSA之后，FST只需要增加一个output，类似于map的键值对结构，每个key跟着一个value。</p>
+<p>例如，我们输入“you:4”，4是you关联的output：</p>
+<figure data-type="image" tabindex="6"><img src="https://orange-hou.github.io//post-images/1591769285019.png" alt="" loading="lazy"></figure>
+<p>这时候我们查找“you”：</p>
+<ul>
+<li>初始状态0</li>
+<li>输入y，从0-&gt;1，value=4</li>
+<li>输入o，从1-&gt;2，value=4+0</li>
+<li>输入u，从2-&gt;3，value=4+0</li>
+</ul>
+<p>最终得到了output为4。</p>
+<p>当然我们也可以这样构建“you”的FST：</p>
+<figure data-type="image" tabindex="7"><img src="https://orange-hou.github.io//post-images/1591769292457.png" alt="" loading="lazy"></figure>
+<p>这个时候的output，4=1+2+1。</p>
+<p>我们继续在第一个FST中，加入“yae:3”：</p>
+<figure data-type="image" tabindex="8"><img src="https://orange-hou.github.io//post-images/1591769299854.png" alt="" loading="lazy"></figure>
+<p>这个时候由于yae和you共享前缀y，yae的output为3，则之前的“y/4”就要调整了。</p>
+<p>区别于TRIE树，FST不光可以共享前缀，还可以共享后缀，这极大的节省了存储空间。</p>
+<h2 id="fst构建">FST构建</h2>
+<p>FST和FSA的构建基本一致，区别在于如何防止output，达到最大程度的共享前缀与后缀。</p>
 <p>假设我们输入：ant-1、dec-3、doc-2（后面的数字代表output）</p>
-<p>先来看ant-1，将1放在第一个转移上（也可以放到其他转移上）：</p>
-<p><img src="https://orange-hou.github.io//post-images/1591708321038.jpg" alt="" loading="lazy"><br>
-加入dec-3，注意这个时候会进行一次冻结操作，上面的ant部分就不会变了：</p>
-<figure data-type="image" tabindex="3"><img src="https://orange-hou.github.io//post-images/1591708326964.jpg" alt="" loading="lazy"></figure>
+<p>先来看ant-1，将1放在第一个转移上（也可以放到其他转移上，这里的虚线代表后续FST可变）：</p>
+<figure data-type="image" tabindex="9"><img src="https://orange-hou.github.io//post-images/1591769308643.jpg" alt="" loading="lazy"></figure>
+<p>加入dec-3，注意这个时候会进行一次冻结操作，上面的ant部分就不会变了：</p>
+<figure data-type="image" tabindex="10"><img src="https://orange-hou.github.io//post-images/1591769316732.jpg" alt="" loading="lazy"></figure>
 <p>加入doc-2：</p>
-<figure data-type="image" tabindex="4"><img src="https://orange-hou.github.io//post-images/1591708333850.jpg" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="11"><img src="https://orange-hou.github.io//post-images/1591769331678.jpg" alt="" loading="lazy"></figure>
+<p>最后执行冻结后，得到的FST如下：</p>
+<figure data-type="image" tabindex="12"><img src="https://orange-hou.github.io//post-images/1591769338800.png" alt="" loading="lazy"></figure>
+<p>关于在Lucene中如何构建FST，大家可以看看org.apache.lucene.util.fst.Builder类。</p>
 <h2 id="参考资料">参考资料</h2>
 <ol>
 <li><a href="http://www.shenyanchao.cn/blog/2018/12/04/lucene-fst/">关于Lucene的词典FST深入剖析(http://www.shenyanchao.cn/blog/2018/12/04/lucene-fst/)</a></li>
